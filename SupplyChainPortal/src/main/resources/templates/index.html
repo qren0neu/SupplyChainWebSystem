@@ -1,6 +1,77 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org">
+<html>
+
+<head>
+    <title>Page Title</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <style>
+        /* Style the main content area */
+        .main-content {
+            width: 80%;
+            margin: auto;
+            text-align: center;
+        }
+        
+        .main-list {
+            width: 80%;
+            margin: auto;
+            text-align: left;
+        }
+        
+        .list-title {
+            text-align: center;
+        }
+    </style>
+</head>
+
 <body>
-<h1>Welcome!</h1>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <script>
+        var url = document.location.pathname;
+        var sp = url.split('/');
+        var role = 'customer';
+        if (sp.length > 3) {
+            role = sp[3]
+        }
+
+        var registerPage = getPage('/login/' + role + '/userRegister')
+        var loginPage = getPage('/login/' + role + '/userLogin')
+    </script>
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a onclick="location.href=registerPage">Register</a></li>
+            <li><a onclick="location.href=loginPage">Login</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h2>Instruction</h2>
+        <div class="main-list">
+        	<p class="list-title">Welcome to the supply chain system!</p>
+	        <ul>
+	            <li>You can go back to the home page by clicking at "Home"</li>
+	            <li>You can see the project information by clicking at "About"</li>
+	            <li>You can find out how to contact me by clicking at "Instruction"</li>
+	            <li>You can register by clicking at "Register"</li>
+	            <li>You can login by clicking at "Login"</li>
+	        </ul>
+        </div>
+        
+        <!-- Add an About section -->
+        <h3><a name="about">About</a></h3>
+        <p>This website is a demo of a supply chain management system. It aims to create a system which interacts with multiple entities (Raw Material Supplier / Manufacturer /
+Distributor / Consumer) and choose the best solutions to send goods/services to the end customer based on various supply chain issues.</p>
+
+        <!-- Add a Contact section -->
+        <h3><a name="contact">Contact</a></h3>
+        <p>For inquiries, please contact us at <a href="mailto:qiren.neu@gmail.com">qiren.neu@gmail.com</a>.</p>
+    </div>
 </body>
+
 </html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registration</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        label {
+            display: block;
+            padding: 5px 0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="button"] {
+            float: left;
+        }
+
+        input[type="submit"] {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Registration Form</h1>
+    <form>
+        <label for="first-name">First Name:</label><br>
+        <input type="text" id="first-name" name="first-name"><br>
+
+        <label for="middle-name">Middle Name:</label><br>
+        <input type="text" id="middle-name" name="middle-name"><br>
+
+        <label for="last-name">Last Name:</label><br>
+        <input type="text" id="last-name" name="last-name"><br>
+
+        <label for="birthday">Birthday:</label><br>
+        <input type="date" id="birthday" name="birthday"><br>
+
+        <label for="address-1">Address 1:</label><br>
+        <input type="text" id="address-1" name="address-1"><br>
+
+        <label for="address-2">Address 2:</label><br>
+        <input type="text" id="address-2" name="address-2"><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"><br>
+
+        <label for="phone">Phone:</label><br>
+        <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"><br>
+
+        <label for="contact-preference">Preferred Contact Method:</label><br>
+        <select id="contact-preference" name="contact-preference">
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+        </select><br>
+
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+
+        <input type="button" value="Back" onclick="history.back()" style="float: left;">
+        <input type="submit" value="Submit" style="float: right;">
+    </form>
+</body>
+
+</html>

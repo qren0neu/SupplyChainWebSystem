@@ -1,0 +1,31 @@
+/* Style the top toolbar */
+.toolbar {
+	background-color: #333;
+	color: #fff;
+	padding: 16px;
+	text-align: center;
+}
+
+/* Style the navigation menu */
+.toolbar ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.toolbar li {
+	float: left;
+}
+
+.toolbar a {
+	display: block;
+	color: #fff;
+	text-align: center;
+	padding: 16px;
+	text-decoration: none;
+}
+
+.toolbar a:hover {
+	background-color: #111;
+}
