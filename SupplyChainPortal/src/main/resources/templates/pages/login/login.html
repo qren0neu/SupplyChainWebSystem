@@ -3,6 +3,8 @@
 
 <head>
     <meta charset="utf-8">
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
     <title>Login</title>
     <style>
         body {
@@ -40,7 +42,7 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -57,14 +59,29 @@
 </head>
 
 <body>
-    <form action="/portal/api/login/userLogin/customer" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br><br>
-        <input type="submit" value="Submit">
-  		<button type="button" onclick="history.go(-1)">Go Back</button>
-    </form>
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <div>
+        <form action="/portal/api/login/userLogin/customer" method="post">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br><br>
+            <input type="submit" value="Submit">
+            <button type="button" onclick="history.go(-1)">Go Back</button>
+        </form>
+    </div>
 </body>
 
 </html>

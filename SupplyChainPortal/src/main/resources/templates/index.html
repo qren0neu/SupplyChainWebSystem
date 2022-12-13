@@ -27,15 +27,8 @@
 <body>
     <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
     <script>
-        var url = document.location.pathname;
-        var sp = url.split('/');
-        var role = 'customer';
-        if (sp.length > 3) {
-            role = sp[3]
-        }
-
-        var registerPage = getPage('/login/' + role + '/userRegister')
-        var loginPage = getPage('/login/' + role + '/userLogin')
+        var registerPage = getPage('/login/userRegister/' + role)
+        var loginPage = getPage('/login/userLogin/' + role)
     </script>
     <div class="toolbar">
         <h1>Supply Chain System</h1>

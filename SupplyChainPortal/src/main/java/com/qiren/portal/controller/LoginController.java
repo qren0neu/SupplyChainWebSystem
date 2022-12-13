@@ -27,7 +27,7 @@ public class LoginController {
 		return "Welcome, " + name;
 	}
 
-	@GetMapping(path = "/{role}/userLogin")
+	@GetMapping(path = "/userLogin/{role}")
 	public String login(@PathVariable String role) {
 		if (Role.validRole(role)) {
 			return CommonUtils.page("/login/login");
@@ -35,4 +35,11 @@ public class LoginController {
 		return CommonUtils.errorPage();
 	}
 
+	@GetMapping(path = "/userRegister/{role}")
+	public String register(@PathVariable String role) {
+		if (Role.validRole(role)) {
+			return CommonUtils.page("/login/registration");
+		}
+		return CommonUtils.errorPage();
+	}
 }

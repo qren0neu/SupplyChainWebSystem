@@ -1,5 +1,7 @@
 package com.qiren.common.tools;
 
+import java.sql.Connection;
+
 public enum Role {
 	CUSTOMER,
 	SUPPLIER,
@@ -11,6 +13,7 @@ public enum Role {
 	public static final boolean validRole(String role) {
 		try {
 			valueOf(role.toUpperCase());
+			Connection connection;
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();

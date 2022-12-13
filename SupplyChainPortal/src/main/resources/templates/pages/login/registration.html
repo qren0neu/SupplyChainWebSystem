@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registration</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        label {
+            display: block;
+            padding: 5px 0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="button"] {
+            float: left;
+        }
+
+        input[type="submit"] {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        function parseForm(form) {
+            var data = {};
+            for (var i = 0, ii = form.length; i < ii; ++i) {
+                var input = form[i];
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            }
+            return data;
+        }
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationForm");
+            form.appendChild(errorMessage);
+        }
+
+        function submitForm(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('registrationForm');
+            var error = document.getElementById('error-message')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var data = parseForm(form);
+            var jsonString = JSON.stringify(data);
+
+            // Check that the password and confirm password fields match
+            if (data["password"] != data["password-confirm"]) {
+                // Show an error message if the fields do not match
+                showError("The password and confirm password fields do not match.");
+                return;
+            }
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/login/userRegister/' + role), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    showError(data.errorMessage)
+                    //alert(data.message);
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
+
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>Registration Form</h1>
+        <form id='registrationForm' , onsubmit="submitForm(event)">
+            <label for="first-name">First Name:</label><br>
+            <input type="text" id="first-name" name="fname"><br>
+
+            <label for="middle-name">Middle Name:</label><br>
+            <input type="text" id="middle-name" name="mname"><br>
+
+            <label for="last-name">Last Name:</label><br>
+            <input type="text" id="last-name" name="lname"><br>
+
+            <!-- Gender selection field -->
+            <label for="gender">Gender:</label><br>
+            <select id="gender" name="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select><br>
+
+            <label for="birthday">Birthday:</label><br>
+            <input type="date" id="birthday" name="birthday"><br>
+
+            <label for="address-1">Address 1:</label><br>
+            <input type="text" id="address-1" name="address1"><br>
+
+            <label for="address-2">Address 2:</label><br>
+            <input type="text" id="address-2" name="address2"><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"><br>
+
+            <label for="phone">Phone:</label><br>
+            <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"><br>
+
+            <label for="contact-preference">Preferred Contact Method:</label><br>
+            <select id="contact-preference" name="preference">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+            </select><br>
+
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
+
+            <!-- Confirm password field -->
+            <label for="password-confirm">Confirm Password:</label><br>
+            <input type="password" id="password-confirm" name="password-confirm"><br>
+
+            <br>
+
+            <input type="button" value="Back" onclick="history.back()" style="float: left;">
+            <input type="submit" value="Submit" style="float: right;">
+        </form>
+</body>
+
+</html>
