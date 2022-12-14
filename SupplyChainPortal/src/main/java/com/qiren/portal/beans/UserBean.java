@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class UserBean extends DefaultBean {
 
-	private String userId;
-	private String userName;
-	private String firstName;
+	private String userid;
+	private String username;
+	private String fname;
+	private String role;
+	private String type;
 	
 	public UserBean() {
 		

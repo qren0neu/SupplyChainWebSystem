@@ -10,8 +10,8 @@ import com.qiren.portal.beans.UserBean;
 public class Configuration {
 
 	@Bean
-	public RedisTemplate<String, UserBean> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-		RedisTemplate<String, UserBean> template = new RedisTemplate<>();
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(redisConnectionFactory);
 		return template;
 	}

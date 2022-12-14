@@ -24,4 +24,9 @@ public class MyErrorController {
 	public @ResponseBody CommonResponse errorHandling(Exception ex) {
 		return CommonUtils.fail(ex.getMessage());
 	}
+	
+	@GetMapping("/pages/error")
+	public String errorPage() {
+		return "/error";
+	}
 }

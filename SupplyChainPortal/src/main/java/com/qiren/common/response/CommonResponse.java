@@ -13,4 +13,6 @@ public class CommonResponse implements Serializable {
 	
 	private String errorMessage;
 	
+	private String data;
+	
 }

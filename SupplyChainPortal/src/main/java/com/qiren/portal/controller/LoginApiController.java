@@ -2,7 +2,6 @@ package com.qiren.portal.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,9 +14,12 @@ import com.qiren.common.response.CommonResponse;
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Logger;
 import com.qiren.common.tools.Role;
+import com.qiren.portal.entities.CommonUserEntity;
+import com.qiren.portal.request.UserLoginRequest;
 import com.qiren.portal.request.UserRegistrationRequest;
 import com.qiren.portal.service.LoginService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController()
@@ -28,12 +30,20 @@ public class LoginApiController {
 	private LoginService loginService;
 	
 	@PostMapping("/userLogin/{role}")
-	public @ResponseBody CommonResponse userLogin(@PathVariable String role) {
-		Logger.log(this, "userLogin");
+	public @ResponseBody CommonResponse userLogin(
+			@PathVariable String role,
+			@RequestBody UserLoginRequest userLoginRequest,
+			HttpServletRequest httpServletRequest) {
+		Logger.log(this, "userLogin " + role);
 		if (null == role) {
-			return CommonUtils.fail("Missing path variable!");
+			return CommonUtils.fail("Missing role!");
 		} else {
-			return CommonUtils.success();
+			try {
+				return loginService.login(userLoginRequest.getUsername(), userLoginRequest.getPassword(), role, httpServletRequest);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return CommonUtils.fail("Login failed");
+			}
 		}
 	}
 
@@ -42,7 +52,7 @@ public class LoginApiController {
 			@Valid @RequestBody UserRegistrationRequest userRequest, 
 			BindingResult bindingResult,
 			@PathVariable String role) {
-		Logger.log(this, "userRegister");
+		Logger.log(this, "userRegister " + role);
 		if (null == role || !Role.validRole(role)) {
 			return CommonUtils.fail("Invalid Role!");
 		} else {
@@ -56,6 +66,23 @@ public class LoginApiController {
 				return CommonUtils.success();
 			}
 			return CommonUtils.bindingError(bindingResult);
+		}
+	}
+
+	/**
+	 * view registered user info
+	 * 
+	 * @param username user name in md5 hash
+	 * @return user full info
+	 */
+	@PostMapping("/viewUser/{username}")
+	public @ResponseBody CommonResponse viewUser(@PathVariable String username) {
+		Logger.log(this, "viewUser " + username);
+		CommonUserEntity userEntity = loginService.findUserInfoByName(username);
+		if (null == userEntity) {
+			return CommonUtils.fail("Failed to view userinfo");
+		} else {
+			return CommonUtils.success(userEntity);
 		}
 	}
 }

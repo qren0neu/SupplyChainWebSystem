@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
     <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
     <title>Login</title>
     <style>
         body {
@@ -59,7 +60,72 @@
 </head>
 
 <body>
+    <script>
+        function parseForm(form) {
+            var data = {};
+            for (var i = 0, ii = form.length; i < ii; ++i) {
+                var input = form[i];
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            }
+            return data;
+        }
 
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("loginForm");
+            form.appendChild(errorMessage);
+        }
+
+        function submitForm(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('loginForm');
+            var error = document.getElementById('error-message')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var data = parseForm(form);
+            var jsonString = JSON.stringify(data);
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/login/userLogin/' + role), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        jsonData = JSON.parse(data.data)
+
+                        var usernameHash = CryptoJS.MD5(jsonData.username);
+
+                        window.localStorage.sessionKey = usernameHash
+                        window.location = getPage('/dashboard/' + role)
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
     <div class="toolbar">
         <h1>Supply Chain System</h1>
 
@@ -73,7 +139,7 @@
     <br />
 
     <div>
-        <form action="/portal/api/login/userLogin/customer" method="post">
+        <form id='loginForm' , onsubmit="submitForm(event)">
             <label for="username">Username:</label><br>
             <input type="text" id="username" name="username"><br>
             <label for="password">Password:</label><br>
