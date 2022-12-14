@@ -42,24 +42,24 @@ public class LoginService {
 		}
 		return (UserBean) o;
 	}
-	
+
 	public UserBean getLoginUser(HttpServletRequest request) {
-		
+
 		Object sessionObject = request.getSession().getAttribute(Constants.SESSION_KEY);
-		
+
 		if (sessionObject == null) {
 			return null;
 		}
-		
+
 		String userId = sessionObject.toString();
-		
+
 		Object o = redisTemplate.opsForHash().get(Constants.SESSION_KEY, userId);
 		if (o == null) {
 			return null;
 		}
 		return (UserBean) o;
 	}
-	
+
 	public void clearLoginUser(String userId) {
 		redisTemplate.opsForHash().delete(Constants.SESSION_KEY, userId);
 	}
@@ -71,28 +71,66 @@ public class LoginService {
 			entity.setRole(role);
 			CommonUserEntity object = userRepository.save(entity);
 			// if user is customer, store onto UserLogin automatically
-			if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
-				boolean createLoginRes = createLogin(object);
-				if (createLoginRes) {
-					return "";
-				} else {
-					return "Internal Error: Failed to create User";
-				}
-			}
+//			if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
+//				boolean createLoginRes = createLogin(object);
+//				if (createLoginRes) {
+//					return "";
+//				} else {
+//					return "Internal Error: Failed to create User";
+//				}
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Internal Error: Failed to create User";
 		}
 		return "";
 	}
-
-	public CommonResponse login(String username, String password, String role, HttpServletRequest request) {
-		if (!Role.validRole(role)) {
-			return CommonUtils.fail("Invalid role");
+	
+	public CommonResponse registerLogin(String username, String role) {
+		// update common user
+		CommonUserEntity entity = findFullUserInfoByName(username);
+		
+		if (null == entity || Role.valueOf(entity.getRole().toUpperCase()) != Role.COMMON) {
+			// only change common user here!
+			return CommonUtils.fail("Invalid Request");
 		}
+		
+		entity.setRole(role);
+		userRepository.save(entity);
+		
+		// register to login table
+		boolean createLoginRes = createLogin(entity);
+		return createLoginRes ? CommonUtils.success() : CommonUtils.fail("");
+	}
+
+	public CommonResponse createLoginUser(String username, String role) {
+		CommonUserEntity entity = findUserInfoByName(username);
+
+		if (null == entity) {
+			return CommonUtils.fail("User not exist");
+		}
+
+		boolean createLoginRes = createLogin(entity);
+		return createLoginRes ? CommonUtils.success() : CommonUtils.fail("");
+	}
+
+	public CommonResponse login(String username, String password, HttpServletRequest request) {
+//		if (!Role.validRole(role)) {
+//			return CommonUtils.fail("Invalid role");
+//		}
+
+		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
+		String role = userEntity.getRole();
+		
 		CommonUserResponse response = null;
 		if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
-			response = customerLogin(username, password);
+			response = customerLogin(username, password, userEntity.getFname());
+		} else if (Role.valueOf(role.toUpperCase()) == Role.COMMON) {
+			response = new CommonUserResponse();
+			response.setRole(role);
+			response.setUsername(username);
+			// don't create session
+			return CommonUtils.success(response);
 		} else {
 			response = otherLogin(username, password, role);
 		}
@@ -100,7 +138,7 @@ public class LoginService {
 		HttpSession session = request.getSession();
 //		session.setAttribute(Constants.SESSION_KEY, response.getUserid());
 		session.setAttribute(Constants.SESSION_KEY, CommonUtils.md5(response.getUsername()));
-		
+
 		return CommonUtils.success(response);
 	}
 
@@ -121,16 +159,16 @@ public class LoginService {
 		return userResponse;
 	}
 
-	public CommonUserResponse customerLogin(String username, String password) {
+	public CommonUserResponse customerLogin(String username, String password, String fname) {
 		// note: customer only!
-		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
-		if (null == userEntity) {
-			return null;
-		}
-		String roleString = userEntity.getRole();
-		if (Role.valueOf(roleString.toUpperCase()) != Role.CUSTOMER) {
-			return null;
-		}
+//		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
+//		if (null == userEntity) {
+//			return null;
+//		}
+//		String roleString = userEntity.getRole();
+//		if (Role.valueOf(roleString.toUpperCase()) != Role.CUSTOMER) {
+//			return null;
+//		}
 		// customer login
 		UserLoginEntity loginEntity = loginRepository.findByUsernameAndPassword(username, password);
 		if (null != loginEntity) {
@@ -142,8 +180,8 @@ public class LoginService {
 
 			// store
 			UserBean userBean = new UserBean();
-			userBean.setFname(userEntity.getFname());
-			userBean.setRole(roleString);
+			userBean.setFname(fname);
+			userBean.setRole("customer");
 			userBean.setType(userResponse.getType());
 			userBean.setUserid(userResponse.getUserid());
 			userBean.setUsername(username);
@@ -157,19 +195,26 @@ public class LoginService {
 		}
 	}
 
-	public CommonUserEntity findUserInfoByName(String userName) {
+	private CommonUserEntity findFullUserInfoByName(String userName) {
 		// note that here the username is md5
 		try {
 			CommonUserEntity users = userRepository.findByUsername(userName);
 			if (null == users) {
 				return null;
 			}
-			users.setPassword(null);
 			return users;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public CommonUserEntity findUserInfoByName(String userName) {
+		// safe method to avoid returning password
+		// note that here the username is md5
+		CommonUserEntity users = findFullUserInfoByName(userName);
+		users.setPassword(null);
+		return users;
 	}
 
 	public boolean createLogin(CommonUserEntity userEntity) {

@@ -100,7 +100,7 @@
             var jsonString = JSON.stringify(data);
 
             // Send the form data to the server using the POST method
-            fetch(getApi('/login/userLogin/' + role), {
+            fetch(getApi('/login/userLogin'), {
                 method: 'POST',
                 headers: buildHttpHead(),
                 body: jsonString
@@ -113,8 +113,15 @@
                     } else {
                         // window.alert(data.data)
                         jsonData = JSON.parse(data.data)
-
+                        // action here is not good, considering to modify in future
                         var usernameHash = CryptoJS.MD5(jsonData.username);
+
+                        var role = jsonData.role;
+
+                        if (role == 'common') {
+                            window.location = getPage('/login/selectRole/' + usernameHash)
+                            return
+                        }
 
                         window.localStorage.sessionKey = usernameHash
                         window.location = getPage('/dashboard/' + role)

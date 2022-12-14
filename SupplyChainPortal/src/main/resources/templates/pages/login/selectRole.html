@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Page Title</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <style>
+        /* Style the main content area */
+        .main-content {
+            width: 80%;
+            margin: auto;
+            text-align: center;
+        }
+
+        .main-list {
+            width: 80%;
+            margin: auto;
+            text-align: left;
+        }
+
+        .list-title {
+            text-align: center;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <script>
+        var url = document.location.pathname;
+        var sp = url.split('/');
+        var temp = sp[sp.length - 1];
+        var unamehash = temp;
+
+        function registerCustomer() {
+            fetch(getApi('/login/loginRegister/customer/' + unamehash), {
+                method: 'POST',
+                headers: buildHttpHead()
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    if (data.statusCode == 1) {
+                        window.alert(data.errorMessage)
+                    } else {
+                        window.location = homepage
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+
+        function createCompany() {
+
+        }
+
+        function findCompany() {
+
+        }
+    </script>
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="location.href=homepage">Home</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content" style="display: flex; flex-direction: column;">
+        <h2>Congratulations!</h2>
+        <p>You have successfully registered, which option here fits you best?</p>
+        <br>
+        <button>I am a Company Manager</button>
+        <button>I am a Company Staff</button>
+        <button onclick="registerCustomer()">I'm a Customer</button>
+        <button onclick="history.go(-1)">Go Back</button>
+    </div>
+</body>
+
+</html>

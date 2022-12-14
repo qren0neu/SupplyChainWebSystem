@@ -13,6 +13,7 @@ import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Constants;
 import com.qiren.common.tools.Role;
 import com.qiren.portal.beans.UserBean;
+import com.qiren.portal.entities.CommonUserEntity;
 import com.qiren.portal.service.LoginService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,36 +30,41 @@ public class LoginController {
 		return "Welcome, " + name;
 	}
 
-	@GetMapping(path = "/userLogin/{role}")
-	public RedirectView login(@PathVariable String role, HttpServletRequest request) {
+	@GetMapping(path = "/userLogin")
+	public RedirectView login(HttpServletRequest request) {
 		Object sesssionObject = request.getSession().getAttribute(Constants.SESSION_KEY);
 		if (null != sesssionObject) {
 			UserBean userBean = loginService.getLoginUser(sesssionObject.toString());
 			if (null != userBean) {
-				return CommonUtils.redirect("/dashboard/" + role);
+				return CommonUtils.redirect("/dashboard/" + userBean.getRole());
 			}
 		}
 
-		if (Role.validRole(role)) {
-			return CommonUtils.redirect("/login/getLogin/" + role);
-		}
-		return CommonUtils.redirect("/error");
+		return CommonUtils.redirect("/login/getLogin");
 	}
 
-	@GetMapping(path = "/getLogin/{role}")
-	public String getLogin(@PathVariable String role) {
-		if (Role.validRole(role)) {
-			return CommonUtils.page("/login/login");
-		}
-		return CommonUtils.errorPage();
+	@GetMapping(path = "/getLogin")
+	public String getLogin() {
+		return CommonUtils.page("/login/login");
 	}
 	
-	@GetMapping(path = "/userRegister/{role}")
-	public String register(@PathVariable String role) {
-		if (Role.validRole(role)) {
-			return CommonUtils.page("/login/registration");
+	@GetMapping(path = "/userRegister")
+	public String register() {
+		return CommonUtils.page("/login/registration");
+	}
+
+	@GetMapping(path = "/selectRole/{username}")
+	public String selectRole(@PathVariable String username) {
+		// username here need to be md5
+		CommonUserEntity entity = loginService.findUserInfoByName(username);
+		
+		if (null == entity || 
+				Role.valueOf(entity.getRole().toUpperCase()) != Role.COMMON) {
+			// not valid
+			return CommonUtils.errorPage();
 		}
-		return CommonUtils.errorPage();
+		
+		return CommonUtils.page("/login/selectRole");
 	}
 	
 	@GetMapping(path = "/userLogout")

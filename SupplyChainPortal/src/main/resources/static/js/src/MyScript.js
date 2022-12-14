@@ -8,6 +8,13 @@ var temp = sp[sp.length - 1];
 
 var role = null;
 
+// pages
+var dashboard = getPage('/dashboard/' + storage.role);
+var homepage = '/portal/perspective/' + storage.role;
+var registerPage = getPage('/login/userRegister');
+var loginPage = getPage('/login/userLogin');
+var logoutPage = getPage('/login/userLogout');
+
 if (roleList.includes(temp)) {
     role = temp;
 }
