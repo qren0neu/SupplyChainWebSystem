@@ -86,7 +86,7 @@ public class LoginService {
 		return "";
 	}
 	
-	public CommonResponse registerLogin(String username, String role) {
+	public CommonResponse customerRegisterLogin(String username, String role) {
 		// update common user
 		CommonUserEntity entity = findFullUserInfoByName(username);
 		
@@ -115,11 +115,12 @@ public class LoginService {
 	}
 
 	public CommonResponse login(String username, String password, HttpServletRequest request) {
-//		if (!Role.validRole(role)) {
-//			return CommonUtils.fail("Invalid role");
-//		}
-
 		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
+		
+		if (null == userEntity) {
+			return CommonUtils.fail("Username not exist");
+		}
+		
 		String role = userEntity.getRole();
 		
 		CommonUserResponse response = null;
@@ -134,6 +135,10 @@ public class LoginService {
 		} else {
 			response = otherLogin(username, password, role);
 		}
+		
+		if (null == response) {
+			return CommonUtils.fail("Wrong username or password");
+		}
 
 		HttpSession session = request.getSession();
 //		session.setAttribute(Constants.SESSION_KEY, response.getUserid());
@@ -146,30 +151,37 @@ public class LoginService {
 		// I checked again and think that we should use this portal for login
 		// other portal just authenticate
 
-		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
+		CommonUserEntity userEntity = userRepository.findByUsernameAndPassword(username, password);
 		if (null == userEntity) {
 			return null;
 		}
 		String roleString = userEntity.getRole();
-		if (Role.valueOf(roleString.toUpperCase()) != Role.CUSTOMER) {
-			return null;
-		}
 
 		CommonUserResponse userResponse = new CommonUserResponse();
+		
+		userResponse.setRole(roleString);
+//		userResponse.setType(roleString);
+//		userResponse.setUserid(userEntity.getPkUser());
+		userResponse.setUsername(username);
+
+		// store
+		UserBean userBean = new UserBean();
+		userBean.setFname(userEntity.getFname());
+		userBean.setRole(role);
+//		userBean.setType(userResponse.getType());
+		userBean.setUserid(userResponse.getUserid());
+		userBean.setUsername(username);
+
+//		redisTemplate.opsForHash().put(Constants.SESSION_KEY, userBean.getUserid(), userBean);
+		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
+		
 		return userResponse;
 	}
 
 	public CommonUserResponse customerLogin(String username, String password, String fname) {
 		// note: customer only!
-//		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
-//		if (null == userEntity) {
-//			return null;
-//		}
-//		String roleString = userEntity.getRole();
-//		if (Role.valueOf(roleString.toUpperCase()) != Role.CUSTOMER) {
-//			return null;
-//		}
 		// customer login
+		// we should probably also use usertable not logintable here, but I'm considering
 		UserLoginEntity loginEntity = loginRepository.findByUsernameAndPassword(username, password);
 		if (null != loginEntity) {
 			CommonUserResponse userResponse = new CommonUserResponse();
@@ -195,7 +207,7 @@ public class LoginService {
 		}
 	}
 
-	private CommonUserEntity findFullUserInfoByName(String userName) {
+	public CommonUserEntity findFullUserInfoByName(String userName) {
 		// note that here the username is md5
 		try {
 			CommonUserEntity users = userRepository.findByUsername(userName);
@@ -209,10 +221,21 @@ public class LoginService {
 		}
 	}
 	
+	public boolean checkLoginCorrect(String username) {
+		UserBean userBean = getLoginUser(username);
+		if (null == userBean) {
+			return false;
+		}
+		return userBean.getUsername().equals(username);
+	}
+	
 	public CommonUserEntity findUserInfoByName(String userName) {
 		// safe method to avoid returning password
 		// note that here the username is md5
 		CommonUserEntity users = findFullUserInfoByName(userName);
+		if (null == users) {
+			return null;
+		}
 		users.setPassword(null);
 		return users;
 	}
@@ -225,6 +248,18 @@ public class LoginService {
 		entity.setIdentifier(userEntity.getUsername());
 		entity.setRole(userEntity.getRole());
 		entity.setType(InternalRole.Customer.CUSTOMER);
+		loginRepository.save(entity);
+		return true;
+	}
+
+	public boolean createLogin(CommonUserEntity userEntity, String type) {
+		// customer only
+		UserLoginEntity entity = new UserLoginEntity();
+		entity.setCredential(userEntity.getPassword());
+		entity.setFkUser(userEntity.getPkUser());
+		entity.setIdentifier(userEntity.getUsername());
+		entity.setRole(userEntity.getRole());
+		entity.setType(type);
 		loginRepository.save(entity);
 		return true;
 	}

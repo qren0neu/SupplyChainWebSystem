@@ -66,7 +66,7 @@
         }
 
         function createCompany() {
-
+            window.location = getPage('/company/getRegister/' + unamehash);
         }
 
         function findCompany() {
@@ -86,7 +86,7 @@
         <h2>Congratulations!</h2>
         <p>You have successfully registered, which option here fits you best?</p>
         <br>
-        <button>I am a Company Manager</button>
+        <button onclick="createCompany()">I am a Company Manager</button>
         <button>I am a Company Staff</button>
         <button onclick="registerCustomer()">I'm a Customer</button>
         <button onclick="history.go(-1)">Go Back</button>

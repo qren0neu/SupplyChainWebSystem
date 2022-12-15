@@ -18,7 +18,7 @@ public class UserRegistrationRequest {
 	@Pattern(regexp = "[A-Za-z]+", message = "Invalid name format")
 	private String fname;
 
-	@Pattern(regexp = "(?:[A-Za-z]+|)", message = "Invalid name format")
+//	@Pattern(regexp = "(?:[A-Za-z]+|)", message = "Invalid name format")
 	private String mname;
 	
 	@NotBlank(message = "Please enter your last name")
@@ -35,7 +35,7 @@ public class UserRegistrationRequest {
 	@NotBlank(message = "Please enter your address")
 	@Pattern(regexp = "([a-zA-Z0-9]+\\s?)+", message = "Invalid address format")
 	private String address1;
-	@Pattern(regexp = "(?:([a-zA-Z0-9]+\\\\s?)+|)", message = "Invalid address format")
+//	@Pattern(regexp = "(?:([a-zA-Z0-9]+\\\\s?)+|)", message = "Invalid address format")
 	private String address2;
 	@NotBlank(message = "Please enter your email")
 	@Email(message = "Invalid email format")

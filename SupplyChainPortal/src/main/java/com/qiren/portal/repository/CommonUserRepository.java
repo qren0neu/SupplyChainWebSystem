@@ -12,6 +12,6 @@ public interface CommonUserRepository extends JpaRepository<CommonUserEntity, Lo
 	@Query(value = "select * from common_user c where md5(username) = ?1", nativeQuery = true)
 	CommonUserEntity findByUsername(String username);
 
-	@Query(value = "select * from common_user c where username = ?1 and md5(password) = ?2", nativeQuery = true)
+	@Query(value = "select * from common_user c where username = ?1 and password = md5(?2)", nativeQuery = true)
 	CommonUserEntity findByUsernameAndPassword(String username, String password);
 }

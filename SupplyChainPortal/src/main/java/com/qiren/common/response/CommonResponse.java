@@ -15,4 +15,5 @@ public class CommonResponse implements Serializable {
 	
 	private String data;
 	
+	private String redirect;
 }

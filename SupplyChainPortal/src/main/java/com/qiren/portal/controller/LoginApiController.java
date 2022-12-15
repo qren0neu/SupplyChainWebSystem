@@ -65,10 +65,10 @@ public class LoginApiController {
 	}
 	
 	@PostMapping("/loginRegister/{role}/{username}")
-	public CommonResponse loginRegister(@PathVariable String role, 
+	public @ResponseBody CommonResponse loginRegister(@PathVariable String role, 
 			@PathVariable String username) {
 		Logger.log(this, "loginRegister " + role);
-		return loginService.registerLogin(username, role);
+		return loginService.customerRegisterLogin(username, role);
 	}
 
 	/**

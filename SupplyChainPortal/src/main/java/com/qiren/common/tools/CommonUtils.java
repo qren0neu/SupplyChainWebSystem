@@ -23,8 +23,16 @@ public class CommonUtils {
 		return new RedirectView("/portal/pages" + pageSub);
 	}
 
+	public static CommonResponse frontEndRedirect(String pageSub) {
+		CommonResponse response = new CommonResponse();
+		response.setStatusCode(Constants.STATUS_CODE_REDIRECT);
+		response.setRedirect(page(pageSub));
+		return response;
+	}
+
 	public static String errorPage() {
 //		return page("/error/error");
+		Logger.error("Redirect to error page due to violation.");
 		return "/error";
 	}
 

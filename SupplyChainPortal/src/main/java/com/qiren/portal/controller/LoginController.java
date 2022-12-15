@@ -11,6 +11,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Constants;
+import com.qiren.common.tools.Logger;
 import com.qiren.common.tools.Role;
 import com.qiren.portal.beans.UserBean;
 import com.qiren.portal.entities.CommonUserEntity;
@@ -32,6 +33,7 @@ public class LoginController {
 
 	@GetMapping(path = "/userLogin")
 	public RedirectView login(HttpServletRequest request) {
+		Logger.log("login");
 		Object sesssionObject = request.getSession().getAttribute(Constants.SESSION_KEY);
 		if (null != sesssionObject) {
 			UserBean userBean = loginService.getLoginUser(sesssionObject.toString());

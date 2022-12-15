@@ -49,3 +49,15 @@ function buildHttpHead() {
 
     return head;
 }
+
+
+function parseForm(form) {
+    var data = {};
+    for (var i = 0, ii = form.length; i < ii; ++i) {
+        var input = form[i];
+        if (input.name) {
+            data[input.name] = input.value;
+        }
+    }
+    return data;
+}

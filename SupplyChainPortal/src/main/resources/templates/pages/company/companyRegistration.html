@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Company Form</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            padding: 20px;
+        }
+
+        form {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        label {
+            display: block;
+            padding: 5px 0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="button"] {
+            float: left;
+        }
+
+        input[type="submit"] {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationForm");
+            form.appendChild(errorMessage);
+        }
+
+        function submitForm(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('registrationForm');
+            var error = document.getElementById('error-message')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var formData = parseForm(form);
+            var jsonString = JSON.stringify(formData);
+
+            // Check that the password and confirm password fields match
+            if (formData["password"] != formData["password-confirm"]) {
+                // Show an error message if the fields do not match
+                showError("The password and confirm password fields do not match.");
+                return;
+            }
+            var url = document.location.pathname;
+            var sp = url.split('/');
+            var temp = sp[sp.length - 1];
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/company/register/' + temp), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage);
+                    } else {
+                        // window.alert(data.data)
+                        window.location = data.redirect;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>Company Form</h2>
+    <form id='registrationForm' , onsubmit="submitForm(event)">
+        <label>Company Name:</label>
+        <input type="text" name="name" pattern="[A-Za-z]+" required>
+
+        <label>Address:</label>
+        <input type="text" name="address" pattern="([a-zA-Z0-9]+\s?)+" required>
+
+        <label>City:</label>
+        <input type="text" name="city" pattern="[A-Za-z]+" required>
+
+        <label>State:</label>
+        <input type="text" name="state" pattern="[A-Z]{2}" required>
+
+        <label>Country:</label>
+        <select name="country" required>
+            <option value="ca">Canada</option>
+            <option value="us">United States</option>
+            <option value="uk">United Kingdom</option>
+            <option value="in">India</option>
+            <option value="jp">Japan</option>
+            <option value="rs">Russia</option>
+            <option value="ge">Germany</option>
+            <option value="cn">China</option>
+        </select>
+
+        <label>Phone Number:</label>
+        <input type="text" name="phone" pattern="(\(\+[0-9]+\))?\s?[0-9]{3}-[0-9]{3}-[0-9]{4}" required>
+
+        <label>Email:</label>
+        <input type="email" name="email" required>
+
+        <label>What do your company do?</label>
+        <select name="role" required>
+            <option value=""></option>
+            <option value="supplier">We provide raw matierials</option>
+            <option value="manufacurer">We use material to build products</option>
+            <option value="distributor">We sell the product to customers</option>
+            <option value="router">We use the routes and provides delivery</option>
+        </select>
+
+        <input type="button" value="Back" onclick="history.back()" style="float: left;">
+        <input type="submit" value="Submit" style="float: right;">
+    </form>
+</body>
+
+</html>
