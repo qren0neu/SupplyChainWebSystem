@@ -11,4 +11,6 @@ import com.qiren.portal.entities.CompanyEntity;
 public interface CompanyRepo extends JpaRepository<CompanyEntity, Long> {
 
 	List<CompanyEntity> findByRole(String role);
+	
+	CompanyEntity findByName(String name);
 }

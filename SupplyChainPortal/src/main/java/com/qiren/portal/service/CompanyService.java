@@ -20,6 +20,7 @@ import com.qiren.portal.entities.CompanyUserEntity;
 import com.qiren.portal.repository.CommonUserRepository;
 import com.qiren.portal.repository.CompanyRepo;
 import com.qiren.portal.repository.CompanyUserRepository;
+import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
 
 @Service
@@ -151,6 +152,95 @@ public class CompanyService {
 		return CommonUtils.frontEndRedirect("/login/userLogin");
 	}
 
+	public CommonResponse chooseCompany(LoginService loginService,
+			ChooseCompanyRequset chooseCompanyRequset) {
+		String usernameString = chooseCompanyRequset.getUsername();
+		CommonUserEntity entity = loginService.findFullUserInfoByName(usernameString);
+
+		if (null == entity) {
+			return CommonUtils.fail("username not found");
+		}
+
+		Role role = Role.valueOf(entity.getRole().toUpperCase());
+
+		if (role != Role.COMMON) {
+			return CommonUtils.fail("invalid role");
+		}
+
+		String companyRole = chooseCompanyRequset.getCompanyRole();
+		// update user role
+		
+		entity.setRole(companyRole);
+		try {
+			userRepository.save(entity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+		
+		boolean resp = false;
+		// save the user to remote project
+		CommonResponse remoteResponse = null;
+		
+		HashMap<String, Object> requestMap = new HashMap<>();
+		requestMap.put("userid", entity.getPkUser());
+		requestMap.put("credential", entity.getPassword());
+		requestMap.put("identifier", entity.getUsername());
+		requestMap.put("role", entity.getRole());
+		requestMap.put("type", chooseCompanyRequset.getPositionRole());
+		
+		String url = "";
+		
+		Role enumCompanyRole = Role.valueOf(companyRole.toUpperCase());
+		
+		switch (enumCompanyRole) {
+		case SUPPLIER: {
+			url = Constants.URL_SUPPLIER;
+			break;
+		}
+		case DISTRIBUTOR: {
+			url = Constants.URL_DISTRIBUTOR;
+			break;
+		}
+		case MANUFACTURER: {
+			url = Constants.URL_MANUFACTURER;
+			break;
+		}
+		case ROUTER: {
+			url = Constants.URL_ROUTER;
+			break;
+		}
+		default:
+			return CommonUtils.fail("Invalid input");
+		}
+
+		requestMap.put("type", chooseCompanyRequset.getPositionRole());
+		url += "/api/user/createAuth";
+		
+		remoteResponse = RestManager.getInstance().sendHttpPost(restTemplate, url, requestMap);
+		resp = remoteResponse.getStatusCode() == 0;
+		
+		CompanyEntity companyEntity = new CompanyEntity();
+		companyEntity.setPkCompany(Long.parseLong(chooseCompanyRequset.getCompanyId()));
+
+		CompanyUserEntity companyUserEntity = new CompanyUserEntity();
+		companyUserEntity.setCompany(companyEntity);
+		companyUserEntity.setUser(entity);
+		// Step 4: relate the manager with company
+		try {
+			companyUserRepository.save(companyUserEntity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+
+		if (!resp) {
+			return CommonUtils.fail("Create new login failed");
+		}
+
+		return CommonUtils.frontEndRedirect("/login/userLogin");
+	}
+	
 	/**
 	 * Register a new company
 	 */

@@ -35,4 +35,18 @@ public class CompanyController {
 		
 		return CommonUtils.page("/company/companyRegistration");
 	}
+	
+	@GetMapping("/selectCompany/{username}")
+	public String getCompanySelection(@PathVariable String username, HttpServletRequest request) {
+		Logger.log(this, "getCompanySelection");
+		CommonUserEntity userBean = loginService.findUserInfoByName(username);
+		
+		if (null == userBean
+				|| Role.valueOf(userBean.getRole().toUpperCase()) != Role.COMMON) {
+			// only common user can go
+			return CommonUtils.errorPage();
+		}
+		
+		return CommonUtils.page("/company/companySelection");
+	}
 }

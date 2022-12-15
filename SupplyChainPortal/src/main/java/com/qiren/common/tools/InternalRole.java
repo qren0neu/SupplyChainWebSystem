@@ -16,6 +16,7 @@ public class InternalRole {
 		public static final String COMPANY_MANAGER = "CompanyManager_DIS";
 		public static final String PRODUCT_MANAGER = "ProductManager_DIS";
 		public static final String ORDER_MANAGER = "OrderManager_DIS";
+		public static final String ROUTE_PLANNER = "RouterPlanner_DIS";
 	}
 	
 	public static class Manufacturer {
@@ -23,6 +24,7 @@ public class InternalRole {
 		public static final String COMPANY_MANAGER = "CompanyManager_MAU";
 		public static final String PRODUCT_MANAGER = "ProductManager_MAU";
 		public static final String ORDER_MANAGER = "OrderManager_MAU";
+		public static final String ROUTE_PLANNER = "RouterPlanner_MAU";
 	}
 	
 	public static class Router {

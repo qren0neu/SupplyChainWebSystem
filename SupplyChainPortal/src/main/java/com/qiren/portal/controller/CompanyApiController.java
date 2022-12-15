@@ -16,6 +16,7 @@ import com.qiren.common.tools.InternalRole;
 import com.qiren.common.tools.Logger;
 import com.qiren.common.tools.Role;
 import com.qiren.portal.entities.CommonUserEntity;
+import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
 import com.qiren.portal.service.CompanyService;
 import com.qiren.portal.service.LoginService;
@@ -34,11 +35,20 @@ public class CompanyApiController {
 	@PostMapping("/register/{username}")
 	public @ResponseBody CommonResponse registerCompany(@PathVariable String username,
 			@RequestBody @Valid CompanyRegistrationRequest companyRegisRequest, BindingResult bindingResult) {
+
+		Logger.log("registerCompany " + username);
 		boolean isSuccess = !bindingResult.hasErrors();
 		if (isSuccess) {
 			return companyService.registerCompanyAndModifyUser(loginService, companyRegisRequest, username);
 		}
 		return CommonUtils.bindingError(bindingResult);
+	}
+
+	@PostMapping("/chooseCompany")
+	public @ResponseBody CommonResponse chooseCompany(
+			@RequestBody @Valid ChooseCompanyRequset chooseCompanyRequset) {
+		Logger.log("chooseCompany ");
+		return companyService.chooseCompany(loginService, chooseCompanyRequset);
 	}
 
 	@PostMapping("/viewAll/{role}")
@@ -47,4 +57,9 @@ public class CompanyApiController {
 		return companyService.findCompanyByType(role);
 	}
 
+	@PostMapping("/viewAll")
+	public @ResponseBody CommonResponse findCompanyAll() {
+		Logger.log("findCompanyAll ");
+		return companyService.findAllCompany();
+	}
 }

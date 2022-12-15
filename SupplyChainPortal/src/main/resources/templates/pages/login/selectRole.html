@@ -70,7 +70,7 @@
         }
 
         function findCompany() {
-
+            window.location = getPage('/company/selectCompany/' + unamehash);
         }
     </script>
     <div class="toolbar">
@@ -87,7 +87,7 @@
         <p>You have successfully registered, which option here fits you best?</p>
         <br>
         <button onclick="createCompany()">I am a Company Manager</button>
-        <button>I am a Company Staff</button>
+        <button onclick="findCompany()">I am a Company Staff</button>
         <button onclick="registerCustomer()">I'm a Customer</button>
         <button onclick="history.go(-1)">Go Back</button>
     </div>
