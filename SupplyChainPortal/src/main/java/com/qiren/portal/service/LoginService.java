@@ -35,6 +35,9 @@ public class LoginService {
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+	/**
+	 * Get login user info
+	 */
 	public UserBean getLoginUser(String userId) {
 		Object o = redisTemplate.opsForHash().get(Constants.SESSION_KEY, userId);
 		if (o == null) {
@@ -43,8 +46,10 @@ public class LoginService {
 		return (UserBean) o;
 	}
 
+	/**
+	 * Get login user info
+	 */
 	public UserBean getLoginUser(HttpServletRequest request) {
-
 		Object sessionObject = request.getSession().getAttribute(Constants.SESSION_KEY);
 
 		if (sessionObject == null) {
@@ -64,21 +69,15 @@ public class LoginService {
 		redisTemplate.opsForHash().delete(Constants.SESSION_KEY, userId);
 	}
 
+	/**
+	 * Register as a common user
+	 */
 	public String registerUser(UserRegistrationRequest userRequest, String role) {
 		try {
 			CommonUserEntity entity = new CommonUserEntity();
 			setUserData(userRequest, entity);
 			entity.setRole(role);
 			CommonUserEntity object = userRepository.save(entity);
-			// if user is customer, store onto UserLogin automatically
-//			if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
-//				boolean createLoginRes = createLogin(object);
-//				if (createLoginRes) {
-//					return "";
-//				} else {
-//					return "Internal Error: Failed to create User";
-//				}
-//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "Internal Error: Failed to create User";
@@ -86,6 +85,9 @@ public class LoginService {
 		return "";
 	}
 	
+	/**
+	 * Store customer into login table (not common user table)
+	 */
 	public CommonResponse customerRegisterLogin(String username, String role) {
 		// update common user
 		CommonUserEntity entity = findFullUserInfoByName(username);
@@ -103,6 +105,9 @@ public class LoginService {
 		return createLoginRes ? CommonUtils.success() : CommonUtils.fail("");
 	}
 
+	/**
+	 * Create user into login table (not common user table)
+	 */
 	public CommonResponse createLoginUser(String username, String role) {
 		CommonUserEntity entity = findUserInfoByName(username);
 
@@ -114,6 +119,9 @@ public class LoginService {
 		return createLoginRes ? CommonUtils.success() : CommonUtils.fail("");
 	}
 
+	/**
+	 * Login
+	 */
 	public CommonResponse login(String username, String password, HttpServletRequest request) {
 		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
 		
@@ -147,6 +155,9 @@ public class LoginService {
 		return CommonUtils.success(response);
 	}
 
+	/**
+	 * Login for users out of "customer"
+	 */
 	public CommonUserResponse otherLogin(String username, String password, String role) {
 		// I checked again and think that we should use this portal for login
 		// other portal just authenticate
@@ -160,24 +171,23 @@ public class LoginService {
 		CommonUserResponse userResponse = new CommonUserResponse();
 		
 		userResponse.setRole(roleString);
-//		userResponse.setType(roleString);
-//		userResponse.setUserid(userEntity.getPkUser());
 		userResponse.setUsername(username);
 
 		// store
 		UserBean userBean = new UserBean();
 		userBean.setFname(userEntity.getFname());
 		userBean.setRole(role);
-//		userBean.setType(userResponse.getType());
 		userBean.setUserid(userResponse.getUserid());
 		userBean.setUsername(username);
 
-//		redisTemplate.opsForHash().put(Constants.SESSION_KEY, userBean.getUserid(), userBean);
 		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
 		
 		return userResponse;
 	}
 
+	/**
+	 * Login for "customer"
+	 */
 	public CommonUserResponse customerLogin(String username, String password, String fname) {
 		// note: customer only!
 		// customer login
@@ -198,7 +208,6 @@ public class LoginService {
 			userBean.setUserid(userResponse.getUserid());
 			userBean.setUsername(username);
 
-//			redisTemplate.opsForHash().put(Constants.SESSION_KEY, userBean.getUserid(), userBean);
 			redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
 
 			return userResponse;
@@ -207,6 +216,10 @@ public class LoginService {
 		}
 	}
 
+	/**
+	 * Get all user info (with password)
+	 * note that here the username is md5
+	 */
 	public CommonUserEntity findFullUserInfoByName(String userName) {
 		// note that here the username is md5
 		try {
@@ -221,6 +234,9 @@ public class LoginService {
 		}
 	}
 	
+	/**
+	 * Check the username(md5) here is the same as login user
+	 */
 	public boolean checkLoginCorrect(String username) {
 		UserBean userBean = getLoginUser(username);
 		if (null == userBean) {
@@ -228,7 +244,12 @@ public class LoginService {
 		}
 		return userBean.getUsername().equals(username);
 	}
-	
+
+
+	/**
+	 * Get all user info (without password)
+	 * note that here the username is md5
+	 */
 	public CommonUserEntity findUserInfoByName(String userName) {
 		// safe method to avoid returning password
 		// note that here the username is md5
@@ -240,6 +261,10 @@ public class LoginService {
 		return users;
 	}
 
+	/**
+	 * Save user into login table (not common table)
+	 * Customer Only
+	 */
 	public boolean createLogin(CommonUserEntity userEntity) {
 		// customer only
 		UserLoginEntity entity = new UserLoginEntity();
@@ -252,8 +277,8 @@ public class LoginService {
 		return true;
 	}
 
+	@Deprecated
 	public boolean createLogin(CommonUserEntity userEntity, String type) {
-		// customer only
 		UserLoginEntity entity = new UserLoginEntity();
 		entity.setCredential(userEntity.getPassword());
 		entity.setFkUser(userEntity.getPkUser());

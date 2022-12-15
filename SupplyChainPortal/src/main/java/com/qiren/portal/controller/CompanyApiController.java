@@ -36,63 +36,7 @@ public class CompanyApiController {
 			@RequestBody @Valid CompanyRegistrationRequest companyRegisRequest, BindingResult bindingResult) {
 		boolean isSuccess = !bindingResult.hasErrors();
 		if (isSuccess) {
-//			if (!loginService.checkLoginCorrect(username)) {
-//				return CommonUtils.fail("login information mismatch");
-//			}
-
-			CommonUserEntity entity = loginService.findFullUserInfoByName(username);
-
-			if (null == entity) {
-				return CommonUtils.fail("username not found");
-			}
-
-			Role role = Role.valueOf(entity.getRole().toUpperCase());
-
-			if (role != Role.COMMON) {
-				return CommonUtils.fail("invalid role");
-			}
-
-			// create the company
-			String errorString = companyService.registerNewCompany(companyRegisRequest);
-			if (!errorString.isBlank()) {
-				return CommonUtils.fail(errorString);
-			}
-			// change user type
-			String companyRole = companyRegisRequest.getRole();
-			Role enumCompanyRole = Role.valueOf(companyRole.toUpperCase());
-
-			String userRoleNew = "";
-
-			switch (enumCompanyRole) {
-			case SUPPLIER: {
-				userRoleNew = InternalRole.Supplier.COMPANY_MANAGER;
-				break;
-			}
-			case DISTRIBUTOR: {
-				userRoleNew = InternalRole.Distributor.COMPANY_MANAGER;
-				break;
-			}
-			case MANUFACTURER: {
-				userRoleNew = InternalRole.Manufacturer.COMPANY_MANAGER;
-				break;
-			}
-			case ROUTER: {
-				userRoleNew = InternalRole.Router.ROUTE_PLANNER;
-				break;
-			}
-			default:
-				return CommonUtils.fail("Invalid input");
-			}
-
-			entity.setRole(companyRole);
-
-			boolean resp = loginService.createLogin(entity, userRoleNew);
-
-			if (!resp) {
-				return CommonUtils.fail("Create new login failed");
-			}
-
-			return CommonUtils.frontEndRedirect("/dashboard/" + companyRole);
+			return companyService.registerCompanyAndModifyUser(loginService, companyRegisRequest, username);
 		}
 		return CommonUtils.bindingError(bindingResult);
 	}

@@ -3,6 +3,7 @@ package com.qiren.portal.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import com.qiren.portal.beans.UserBean;
 
@@ -16,4 +17,9 @@ public class Configuration {
 		return template;
 	}
 
+	@Bean
+	public RestTemplate restTemplate() {
+		RestTemplate template = new RestTemplate();
+		return template;
+	}
 }

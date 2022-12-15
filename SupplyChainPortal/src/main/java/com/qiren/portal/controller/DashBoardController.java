@@ -22,6 +22,9 @@ public class DashBoardController {
 	@Autowired
 	private LoginService loginService;
 	
+	/**
+	 * Get dashboard page of each roles
+	 */
 	@GetMapping(path = "/{role}")
 	public String getMainPage(HttpServletRequest request, @PathVariable String role) {
 		Logger.log(this, "getMainPage " + role);

@@ -31,6 +31,9 @@ public class LoginController {
 		return "Welcome, " + name;
 	}
 
+	/**
+	 * Get login page, if logged in, go to dashboard
+	 */
 	@GetMapping(path = "/userLogin")
 	public RedirectView login(HttpServletRequest request) {
 		Logger.log("login");
@@ -45,16 +48,25 @@ public class LoginController {
 		return CommonUtils.redirect("/login/getLogin");
 	}
 
+	/**
+	 * get login page only
+	 */
 	@GetMapping(path = "/getLogin")
 	public String getLogin() {
 		return CommonUtils.page("/login/login");
 	}
 	
+	/**
+	 * get register page only
+	 */
 	@GetMapping(path = "/userRegister")
 	public String register() {
 		return CommonUtils.page("/login/registration");
 	}
 
+	/**
+	 * Get "selectRole" page
+	 */
 	@GetMapping(path = "/selectRole/{username}")
 	public String selectRole(@PathVariable String username) {
 		// username here need to be md5

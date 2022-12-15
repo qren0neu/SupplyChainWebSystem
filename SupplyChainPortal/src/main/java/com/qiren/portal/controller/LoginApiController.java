@@ -29,6 +29,9 @@ public class LoginApiController {
 	@Autowired
 	private LoginService loginService;
 	
+	/**
+	 * Check login info
+	 */
 	@PostMapping("/userLogin")
 	public @ResponseBody CommonResponse userLogin(
 			@RequestBody UserLoginRequest userLoginRequest,
@@ -42,6 +45,9 @@ public class LoginApiController {
 		}
 	}
 
+	/**
+	 * Do registration, role is just a check here.
+	 */
 	@PostMapping("/userRegister/{role}")
 	public @ResponseBody CommonResponse userRegister(
 			@Valid @RequestBody UserRegistrationRequest userRequest, 
@@ -54,7 +60,7 @@ public class LoginApiController {
 			boolean isSuccess = !bindingResult.hasErrors();
 			if (isSuccess) {
 				// create the user
-				String messageString = loginService.registerUser(userRequest, role);
+				String messageString = loginService.registerUser(userRequest, "common");
 				if (null != messageString && !messageString.isBlank()) {
 					return CommonUtils.fail(messageString);
 				}
@@ -64,6 +70,9 @@ public class LoginApiController {
 		}
 	}
 	
+	/**
+	 * Register customer info into "login" table
+	 */
 	@PostMapping("/loginRegister/{role}/{username}")
 	public @ResponseBody CommonResponse loginRegister(@PathVariable String role, 
 			@PathVariable String username) {
