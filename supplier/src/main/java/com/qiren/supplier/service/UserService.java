@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.qiren.common.response.CommonResponse;
+import com.qiren.common.response.CommonUserResponse;
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.supplier.entities.UserAuthEntity;
 import com.qiren.supplier.repository.UserAuthRepo;
@@ -32,5 +33,20 @@ public class UserService {
 		
 		return CommonUtils.success();
 	}
-	
+
+
+	public CommonResponse getAuth(UserAuthRequest userAuthRequest) {
+		try {
+			UserAuthEntity entity = userAuthRepo.findByIdentifierAndCredential(userAuthRequest.getIdentifier(),
+					userAuthRequest.getCredential());
+			CommonUserResponse response = new CommonUserResponse();
+			response.setRole(entity.getRole());
+			response.setType(entity.getType());
+			response.setUsername(entity.getIdentifier());
+			return CommonUtils.success(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+	}
 }

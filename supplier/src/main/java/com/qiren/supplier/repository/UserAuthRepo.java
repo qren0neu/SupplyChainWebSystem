@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import com.qiren.supplier.entities.UserAuthEntity;
 
 @Repository
-public interface UserAuthRepo extends JpaRepository<UserAuthEntity, Long>{
+public interface UserAuthRepo extends JpaRepository<UserAuthEntity, Long> {
 
+//	@Query(value = "select * from user_auth where identifier = ?1 and credential = ?2")
+	UserAuthEntity findByIdentifierAndCredential(String identifier, String credential);
 }

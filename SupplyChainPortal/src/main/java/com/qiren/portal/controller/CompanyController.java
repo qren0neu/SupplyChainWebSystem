@@ -49,4 +49,8 @@ public class CompanyController {
 		
 		return CommonUtils.page("/company/companySelection");
 	}
+	
+//	public String viewCompany() {
+//		
+//	}
 }

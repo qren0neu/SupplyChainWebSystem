@@ -6,7 +6,7 @@ var url = document.location.pathname;
 var sp = url.split('/');
 var temp = sp[sp.length - 1];
 
-var role = null;
+// var role = null;
 
 // pages
 var dashboard = getPage('/dashboard/' + storage.role);
@@ -15,13 +15,13 @@ var registerPage = getPage('/login/userRegister');
 var loginPage = getPage('/login/userLogin');
 var logoutPage = getPage('/login/userLogout');
 
-if (roleList.includes(temp)) {
-    role = temp;
-}
+// if (roleList.includes(temp)) {
+//     role = temp;
+// }
 
-if (role != null) {
-    storage.role = role;
-}
+// if (role != null) {
+//     storage.role = role;
+// }
 
 function getApi(apiPath) {
     return '/portal/api' + apiPath

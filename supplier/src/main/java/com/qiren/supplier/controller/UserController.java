@@ -25,5 +25,10 @@ public class UserController {
 	public @ResponseBody CommonResponse createUserAuth(@RequestBody UserAuthRequest request) {
 		return userService.createAuth(request);
 	}
+	
+	@PostMapping("/getAuth")
+	public @ResponseBody CommonResponse authUser(@RequestBody UserAuthRequest userAuthRequest) {
+		return userService.getAuth(userAuthRequest);
+	}
 
 }

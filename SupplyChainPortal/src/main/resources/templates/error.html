@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>404 Not Found</title>
   <style>
@@ -30,9 +31,20 @@
     }
   </style>
 </head>
+
 <body>
+  <script>
+    function goHome() {
+      window.location = '/portal/'
+    }
+  </script>
+
   <h1>404 Not Found</h1>
   <p>The page you are looking for could not be found.</p>
+  <br>
+  <br>
   <a onclick="history.go(-1)">Go Back</a>
+  <a onclick="goHome()">Go Home</a>
 </body>
+
 </html>

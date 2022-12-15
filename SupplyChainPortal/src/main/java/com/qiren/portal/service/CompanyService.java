@@ -14,6 +14,7 @@ import com.qiren.common.tools.Constants;
 import com.qiren.common.tools.InternalRole;
 import com.qiren.common.tools.RestManager;
 import com.qiren.common.tools.Role;
+import com.qiren.portal.beans.UserBean;
 import com.qiren.portal.entities.CommonUserEntity;
 import com.qiren.portal.entities.CompanyEntity;
 import com.qiren.portal.entities.CompanyUserEntity;
@@ -22,6 +23,8 @@ import com.qiren.portal.repository.CompanyRepo;
 import com.qiren.portal.repository.CompanyUserRepository;
 import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class CompanyService {
@@ -48,6 +51,21 @@ public class CompanyService {
 		List<CompanyEntity> companyEntities = new ArrayList<>();
 		companyEntities.addAll(companyRepository.findAll());
 		return CommonUtils.success(companyEntities);
+	}
+	
+	public CommonResponse viewSelfCompany(HttpServletRequest request, LoginService loginService) {
+		UserBean userBean = loginService.getLoginUser(request);
+		
+		if (null == userBean) {
+			return CommonUtils.fail("User not found");
+		}
+		
+		CommonUserEntity commonUserEntity = loginService.findUserInfoByName(userBean.getUsername());
+		
+		CompanyUserEntity companyUserEntity = companyUserRepository.findByUser(commonUserEntity);
+//		companyUserEntity.setUser(null);
+		
+		return CommonUtils.success(companyUserEntity.getCompany());
 	}
 
 	/**

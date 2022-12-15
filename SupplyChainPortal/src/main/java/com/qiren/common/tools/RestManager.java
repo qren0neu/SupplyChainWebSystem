@@ -1,5 +1,7 @@
 package com.qiren.common.tools;
 
+import java.util.Map;
+
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
@@ -31,6 +33,18 @@ public class RestManager {
 	public CommonResponse sendHttpPost(RestTemplate template, String url, Object body) {
 		CommonResponse responseBody = template.postForObject(url, body, CommonResponse.class);
 		return responseBody;
+	}
+
+	public CommonResponse sendHttpGetWithHeader(RestTemplate template, String url, Map<String, Object> header,
+			Object body) {
+		CommonResponse commonResponse = new CommonResponse();
+		return commonResponse;
+	}
+
+	public CommonResponse sendHttpPostWithHeader(RestTemplate template, String url, Map<String, Object> header,
+			Object body) {
+		CommonResponse commonResponse = new CommonResponse();
+		return commonResponse;
 	}
 
 	private RestManager() {

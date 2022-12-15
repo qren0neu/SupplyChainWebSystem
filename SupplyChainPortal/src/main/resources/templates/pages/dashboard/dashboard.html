@@ -34,12 +34,21 @@
             <li><a onclick="location.href=dashboard">Home</a></li>
             <li><a onclick="location.href=registerPage">Register</a></li>
             <li><a onclick="location.href=logoutPage">Logout</a></li>
+            <li><a onclick="location.href=logoutPage">Browse</a></li>
+            <li><a onclick="location.href=logoutPage">View</a></li>
         </ul>
     </div>
 
     <div class="main-content">
-
+        <h3 id="user-welcome"></h3>
+        <p>What do you want to do today?</p>
     </div>
+    <script>
+        var fnameForShow = storage.fname;
+
+        var welcomeTitle = document.getElementById('user-welcome');
+        welcomeTitle.innerHTML = 'Welcome, ' + fnameForShow;
+    </script>
 </body>
 
 </html>

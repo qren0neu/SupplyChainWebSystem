@@ -332,6 +332,7 @@
                         showError(data.errorMessage);
                     } else {
                         // window.location = homepage;
+                        window.location = data.redirect
                     }
                 })
                 .catch(error => {
