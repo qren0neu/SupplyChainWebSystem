@@ -32,7 +32,7 @@ public class CommonUtils {
 	}
 
 	public static String errorPage() {
-//		return page("/error/error");
+		// return page("/error/error");
 		Logger.error("Redirect to error page due to violation.");
 		return "/error";
 	}

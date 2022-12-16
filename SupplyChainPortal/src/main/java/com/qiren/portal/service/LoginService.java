@@ -93,7 +93,7 @@ public class LoginService {
 			CommonUserEntity object = userRepository.save(entity);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "Internal Error: Failed to create User";
+			return "Create user failed, please check your info or change your username";
 		}
 		return "";
 	}
@@ -405,7 +405,7 @@ public class LoginService {
 			userRepository.save(user);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return CommonUtils.fail(e.getMessage());
+			return CommonUtils.fail("Update user failed");
 		}
 
 		userBean.setCommonInfo(user);
@@ -433,7 +433,7 @@ public class LoginService {
 			userRepository.save(user);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return CommonUtils.fail(e.getMessage());
+			return CommonUtils.fail("Update user failed");
 		}
 
 		userBean.setUsername(loginRequest.getUsername());
