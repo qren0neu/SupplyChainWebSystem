@@ -54,17 +54,17 @@
         // Get the ul element with the id toolbar-items
         var toolbarItems = document.getElementById("toolbar-items");
 
-        if (myPosition == roleMap.distributor.companyManager) {
+        if (myPosition == roleMap.supplier.companyManager) {
             // 1
             var item1 = document.createElement("li");
             item1.innerHTML = "<a onclick='location.href=logoutPage'>Browse Staff</a>";
             toolbarItems.appendChild(item1);
             // 2
-        } else if (myPosition == roleMap.distributor.productManager) {
+        } else if (myPosition == roleMap.supplier.productManager) {
 
-        } else if (myPosition == roleMap.distributor.orderManager) {
+        } else if (myPosition == roleMap.supplier.orderManager) {
 
-        } else if (myPosition == roleMap.distributor.routePlanner) {
+        } else if (myPosition == roleMap.supplier.routePlanner) {
 
         } else {
             window.location = '/portal/error'

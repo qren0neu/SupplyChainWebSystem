@@ -43,7 +43,7 @@ public class LoginService {
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	public boolean isLogin(HttpServletRequest request) {
-		return null == getLoginUser(request);
+		return null != getLoginUser(request);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class LoginService {
 
 		response.setFname(userEntity.getFname());
 
-		CommonUserResponse remoteResponse = getUserInfoFromSubSystem(username, CommonUtils.md5(password), role);
+		CommonUserResponse remoteResponse = getUserInfoFromSubSystem(username, password, role);
 		if (null == remoteResponse) {
 			return CommonUtils.fail("Sub systems authorization failed");
 		}
@@ -170,7 +170,7 @@ public class LoginService {
 
 		UserBean userBean = new UserBean();
 
-		userBean.setFname(response.getFname());
+		userBean.setFname(userEntity.getFname());
 		userBean.setType(response.getType());
 		userBean.setRole(response.getRole());
 		userBean.setUsername(response.getUsername());
@@ -327,7 +327,7 @@ public class LoginService {
 		// password we need already hashed
 		HashMap<String, Object> requestMap = new HashMap<>();
 		// requestMap.put("userid", entity.getPkUser());
-		requestMap.put("credential", password);
+		requestMap.put("credential", CommonUtils.md5(password));
 		requestMap.put("identifier", username);
 		requestMap.put("role", role);
 
@@ -352,7 +352,12 @@ public class LoginService {
 				break;
 			}
 			default:
-				return null;
+				UserLoginEntity userLoginEntity = loginRepository.findByUsernameAndPassword(username, password);
+				CommonUserResponse commonUserResponse = new CommonUserResponse();
+				commonUserResponse.setRole(userLoginEntity.getRole());
+				commonUserResponse.setType(userLoginEntity.getType());
+				commonUserResponse.setUsername(userLoginEntity.getIdentifier());
+				return commonUserResponse;
 		}
 
 		url += "/api/user/getAuth";

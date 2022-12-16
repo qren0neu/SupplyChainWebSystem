@@ -133,6 +133,14 @@
                 <option value="phone">Phone</option>
             </select><br>
 
+            <br>
+
+            <input type="submit" value="Submit" style="float: right;">
+        </form>
+
+        <h3>Note: You may logout if you change values below:</h3>
+
+        <form id='registrationForm' , onsubmit="submitForm(event)">
             <label for="username">Username:</label><br>
             <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"><br>
 
@@ -150,6 +158,8 @@
         </form>
 
         <script>
+            var user = null;
+
             fetch(getApi('/login/viewUser/self'), {
                 method: 'POST',
                 headers: buildHttpHead()
@@ -164,18 +174,18 @@
                         user = JSON.parse(data.data)
 
                         // Populate form fields using the CommonUser object
-                        document.getElementById("first-name").value = user.getFname();
-                        document.getElementById("middle-name").value = user.getMname();
-                        document.getElementById("last-name").value = user.getLname();
-                        document.getElementById("gender").value = user.getGender();
-                        document.getElementById("birthday").value = user.getBirthday();
-                        document.getElementById("address-1").value = user.getAddress1();
-                        document.getElementById("address-2").value = user.getAddress2();
-                        document.getElementById("email").value = user.getEmail();
-                        document.getElementById("phone").value = user.getPhone();
-                        document.getElementById("contact-preference").value = user.getPreference();
-                        document.getElementById("username").value = user.getUsername();
-                        document.getElementById("password").value = user.getPassword();
+                        document.getElementById("first-name").value = user.fname;
+                        document.getElementById("middle-name").value = user.mname;
+                        document.getElementById("last-name").value = user.lname;
+                        document.getElementById("gender").value = user.gender;
+                        document.getElementById("birthday").value = user.dob;
+                        document.getElementById("address-1").value = user.address1;
+                        document.getElementById("address-2").value = user.address2;
+                        document.getElementById("email").value = user.email;
+                        document.getElementById("phone").value = user.phone;
+                        document.getElementById("contact-preference").value = user.pref;
+                        document.getElementById("username").value = user.username;
+                        document.getElementById("password").value = user.password;
                     }
                 })
                 .catch(error => {
