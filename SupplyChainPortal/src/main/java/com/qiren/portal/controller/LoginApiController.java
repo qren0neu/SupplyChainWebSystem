@@ -19,6 +19,8 @@ import com.qiren.portal.beans.UserBean;
 import com.qiren.portal.entities.CommonUserEntity;
 import com.qiren.portal.request.UserLoginRequest;
 import com.qiren.portal.request.UserRegistrationRequest;
+import com.qiren.portal.request.UserUpdateLoginRequest;
+import com.qiren.portal.request.UserUpdateRequest;
 import com.qiren.portal.service.CompanyService;
 import com.qiren.portal.service.LoginService;
 
@@ -93,25 +95,25 @@ public class LoginApiController {
 			HttpServletRequest servletRequest,
 			@PathVariable String username) {
 		Logger.log(this, "viewUser " + username);
-		
+
 		UserBean userBean = loginService.getLoginUser(servletRequest);
-		
+
 		if (null == userBean) {
 			return CommonUtils.fail("Not logged in");
 		}
-		
+
 		String positionType = userBean.getType();
 		if (RoleUtils.checkPermissionViewingOtherUser(positionType)) {
 			return CommonUtils.fail("no permission");
 		}
-		
+
 		CommonUserEntity userEntity = loginService.findUserInfoByName(username);
 		if (null == userEntity) {
 			return CommonUtils.fail("Failed to view userinfo");
 		} else {
-			
+
 			if (companyService.isInSameCompany(
-					userBean.getCommonInfo().getPkUser() + "", 
+					userBean.getCommonInfo().getPkUser() + "",
 					userEntity.getPkUser() + "")) {
 				userEntity.setPassword("");
 				return CommonUtils.success(userEntity);
@@ -123,16 +125,37 @@ public class LoginApiController {
 
 	@PostMapping("/viewUser/self")
 	public CommonResponse getSelfInfoLogin(HttpServletRequest servletRequest) {
+		Logger.log(this, "getSelfInfoLogin ");
 
 		UserBean userBean = loginService.getLoginUser(servletRequest);
-		
+
 		if (null == userBean) {
 			return CommonUtils.fail("Not logged in");
 		}
-		
+
 		CommonUserEntity commonUserEntity = userBean.getCommonInfo();
 		commonUserEntity.setPassword(null);
-		
+
 		return CommonUtils.success(commonUserEntity);
+	}
+
+	@PostMapping("/userUpdate/common")
+	public CommonResponse updateUserCommonInfo(HttpServletRequest servletRequest,
+			@Valid @RequestBody UserUpdateRequest updateRequest,
+			BindingResult result) {
+		if (result.hasErrors()) {
+			return CommonUtils.bindingError(result);
+		}
+		return loginService.updateCommonInfo(servletRequest, updateRequest);
+	}
+
+	@PostMapping("/userUpdate/login")
+	public CommonResponse updateUserLoginInfo(HttpServletRequest servletRequest,
+			@Valid @RequestBody UserUpdateLoginRequest updateLoginRequest,
+			BindingResult result) {
+		if (result.hasErrors()) {
+			return CommonUtils.bindingError(result);
+		}
+		return loginService.updateLoginInfo(servletRequest, updateLoginRequest);
 	}
 }

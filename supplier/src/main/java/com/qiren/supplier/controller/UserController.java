@@ -31,4 +31,8 @@ public class UserController {
 		return userService.getAuth(userAuthRequest);
 	}
 
+	@PostMapping("/updateAuth")
+	public @ResponseBody CommonResponse updateUserAuth(@RequestBody UserAuthRequest request) {
+		return userService.updateAuth(request);
+	}
 }

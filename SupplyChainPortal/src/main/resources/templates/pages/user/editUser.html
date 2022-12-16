@@ -36,6 +36,18 @@
             form.appendChild(errorMessage);
         }
 
+        function showErrorLogin(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message-login'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationFormLogin");
+            form.appendChild(errorMessage);
+        }
+
         function submitForm(event) {
             // Prevent the form from being submitted
             event.preventDefault();
@@ -59,7 +71,7 @@
             }
 
             // Send the form data to the server using the POST method
-            fetch(getApi('/login/userRegister/common'), {
+            fetch(getApi('/login/userUpdate/common'), {
                 method: 'POST',
                 headers: buildHttpHead(),
                 body: jsonString
@@ -70,7 +82,50 @@
                         showError(data.errorMessage)
                     } else {
                         // window.alert(data.data)
-                        window.location = './selectRole/' + CryptoJS.MD5(formData['username'])
+                        window.location = dashboard;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+
+        function submitFormLogin(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('registrationFormLogin');
+            var error = document.getElementById('error-message-login')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var formData = parseForm(form);
+            var jsonString = JSON.stringify(formData);
+
+            // Check that the password and confirm password fields match
+            if (formData["password"] != formData["password-confirm"]) {
+                // Show an error message if the fields do not match
+                showErrorLogin("The password and confirm password fields do not match.");
+                return;
+            }
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/login/userUpdate/login'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        showErrorLogin(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        window.location = homepage;
                     }
                 })
                 .catch(error => {
@@ -138,9 +193,16 @@
             <input type="submit" value="Submit" style="float: right;">
         </form>
 
-        <h3>Note: You may logout if you change values below:</h3>
+        <form id='registrationFormLogin' , onsubmit="submitFormLogin(event)">
 
-        <form id='registrationForm' , onsubmit="submitForm(event)">
+            <br>
+
+            <div>
+                <p style="font-style:italic;">Note: You may logout if you change values below:</p>
+            </div>
+
+            <br>
+
             <label for="username">Username:</label><br>
             <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"><br>
 
@@ -185,7 +247,7 @@
                         document.getElementById("phone").value = user.phone;
                         document.getElementById("contact-preference").value = user.pref;
                         document.getElementById("username").value = user.username;
-                        document.getElementById("password").value = user.password;
+                        // document.getElementById("password").value = user.password;
                     }
                 })
                 .catch(error => {

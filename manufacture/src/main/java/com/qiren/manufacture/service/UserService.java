@@ -49,4 +49,23 @@ public class UserService {
 			return CommonUtils.fail(e.getMessage());
 		}
 	}
+	
+	public CommonResponse updateAuth(UserAuthRequest userAuthRequest) {
+		
+		try {
+			UserAuthEntity entity = userAuthRepo.findByFkUser(userAuthRequest.getUserid());
+			entity.setCredential(userAuthRequest.getCredential());
+			entity.setFkUser(Long.parseLong(userAuthRequest.getUserid()));
+			entity.setIdentifier(userAuthRequest.getIdentifier());
+//			entity.setRole(userAuthRequest.getRole());
+//			entity.setType(userAusshRequest.getType());
+			
+			userAuthRepo.save(entity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+		
+		return CommonUtils.success();
+	}
 }

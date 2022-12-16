@@ -7,8 +7,10 @@ import com.qiren.manufacture.entities.UserAuthEntity;
 
 
 @Repository
-public interface UserAuthRepo extends JpaRepository<UserAuthEntity, Long>{
+public interface UserAuthRepo extends JpaRepository<UserAuthEntity, String> {
 
 //	@Query(value = "select * from user_auth where identifier = ?1 and credential = ?2")
 	UserAuthEntity findByIdentifierAndCredential(String identifier, String credential);
+
+	UserAuthEntity findByFkUser(String fkUser);
 }

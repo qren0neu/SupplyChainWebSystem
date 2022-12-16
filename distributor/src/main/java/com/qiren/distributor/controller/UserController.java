@@ -30,4 +30,9 @@ public class UserController {
 	public @ResponseBody CommonResponse authUser(@RequestBody UserAuthRequest userAuthRequest) {
 		return userService.getAuth(userAuthRequest);
 	}
+
+	@PostMapping("/updateAuth")
+	public @ResponseBody CommonResponse updateUserAuth(@RequestBody UserAuthRequest request) {
+		return userService.updateAuth(request);
+	}
 }

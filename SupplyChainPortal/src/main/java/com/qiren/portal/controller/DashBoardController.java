@@ -57,7 +57,7 @@ public class DashBoardController {
 
 	@GetMapping(path = "/viewSelf")
 	public String getSelfInfoPage(HttpServletRequest request) {
-		Logger.log(this, "getMainPage ");
+		Logger.log(this, "getSelfInfoPage ");
 
 		if (!loginService.isLogin(request)) {
 			return CommonUtils.errorPage(null);
@@ -68,7 +68,7 @@ public class DashBoardController {
 
 	@GetMapping(path = "/editSelf")
 	public String editSelfInfoPage(HttpServletRequest request) {
-		Logger.log(this, "getMainPage ");
+		Logger.log(this, "editSelfInfoPage ");
 
 		if (!loginService.isLogin(request)) {
 			return CommonUtils.errorPage(null);

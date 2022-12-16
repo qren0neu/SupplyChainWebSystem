@@ -23,6 +23,8 @@ import com.qiren.portal.entities.UserLoginEntity;
 import com.qiren.portal.repository.CommonUserRepository;
 import com.qiren.portal.repository.UserLoginEntityRepo;
 import com.qiren.portal.request.UserRegistrationRequest;
+import com.qiren.portal.request.UserUpdateLoginRequest;
+import com.qiren.portal.request.UserUpdateRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -173,12 +175,12 @@ public class LoginService {
 		userBean.setFname(userEntity.getFname());
 		userBean.setType(response.getType());
 		userBean.setRole(response.getRole());
-		userBean.setUsername(response.getUsername());
+		userBean.setUsername(remoteResponse.getUsername());
 		userBean.setUserid(userEntity.getPkUser() + "");
 		// put as many as possible info here, redis is powerful
 		userBean.setCommonInfo(userEntity);
 
-		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
+		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(response.getUsername()), userBean);
 
 		HttpSession session = request.getSession();
 		// session.setAttribute(Constants.SESSION_KEY, response.getUserid());
@@ -235,12 +237,12 @@ public class LoginService {
 			userResponse.setType(InternalRole.Customer.CUSTOMER);
 
 			// store
-			UserBean userBean = new UserBean();
-			userBean.setFname(fname);
-			userBean.setRole("customer");
-			userBean.setType(userResponse.getType());
-			// userBean.setUserid(userResponse.getUserid());
-			userBean.setUsername(username);
+			// UserBean userBean = new UserBean();
+			// userBean.setFname(fname);
+			// userBean.setRole("customer");
+			// userBean.setType(userResponse.getType());
+			// // userBean.setUserid(userResponse.getUserid());
+			// userBean.setUsername(username);
 
 			// redisTemplate.opsForHash().put(Constants.SESSION_KEY,
 			// CommonUtils.md5(userBean.getUsername()), userBean);
@@ -372,6 +374,117 @@ public class LoginService {
 		String body = remoteResponse.getData();
 		CommonUserResponse userResponse = new Gson().fromJson(body, CommonUserResponse.class);
 		return userResponse;
+	}
+
+	/**
+	 * Update user info without username and password
+	 */
+	public CommonResponse updateCommonInfo(HttpServletRequest servletRequest, UserUpdateRequest request) {
+		UserBean userBean = getLoginUser(servletRequest);
+
+		if (null == userBean) {
+			return CommonUtils.fail("Not logged in");
+		}
+
+		// CommonUserEntity user = userBean.getCommonInfo();
+		CommonUserEntity user = findFullUserInfoByName(CommonUtils.md5(userBean.getUsername()));
+
+		// do not change 1.pk, 2.username, 3.password
+		user.setFname(request.getFname());
+		user.setMname(request.getMname());
+		user.setLname(request.getLname());
+		user.setGender(request.getGender());
+		user.setDob(simpleDateFormat.format(request.getBirthday()));
+		user.setAddress1(request.getAddress1());
+		user.setAddress2(request.getAddress2());
+		user.setEmail(request.getEmail());
+		user.setPhone(request.getPhone());
+		user.setPref(request.getPreference());
+
+		try {
+			userRepository.save(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+
+		userBean.setCommonInfo(user);
+
+		// update session info
+		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(user.getUsername()), userBean);
+		return CommonUtils.success();
+	}
+
+	/**
+	 * Update user username and password
+	 */
+	public CommonResponse updateLoginInfo(HttpServletRequest servletRequest, UserUpdateLoginRequest loginRequest) {
+		UserBean userBean = getLoginUser(servletRequest);
+
+		if (null == userBean) {
+			return CommonUtils.fail("Not logged in");
+		}
+
+		CommonUserEntity user = userBean.getCommonInfo();
+		user.setUsername(loginRequest.getUsername());
+		user.setPassword(CommonUtils.md5(loginRequest.getPassword()));
+
+		try {
+			userRepository.save(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return CommonUtils.fail(e.getMessage());
+		}
+
+		userBean.setUsername(loginRequest.getUsername());
+
+		// update remote
+
+		CommonResponse remoteResponse = null;
+		String companyRole = userBean.getRole();
+		Role enumCompanyRole = Role.valueOf(companyRole.toUpperCase());
+
+		HashMap<String, Object> requestMap = new HashMap<>();
+		requestMap.put("userid", user.getPkUser());
+		requestMap.put("credential", user.getPassword());
+		requestMap.put("identifier", user.getUsername());
+
+		String url = "";
+
+		switch (enumCompanyRole) {
+			case SUPPLIER: {
+				url = Constants.URL_SUPPLIER;
+				break;
+			}
+			case DISTRIBUTOR: {
+				url = Constants.URL_DISTRIBUTOR;
+				break;
+			}
+			case MANUFACTURER: {
+				url = Constants.URL_MANUFACTURER;
+				break;
+			}
+			case ROUTER: {
+				url = Constants.URL_ROUTER;
+				break;
+			}
+			default:
+				return CommonUtils.fail("Invalid input");
+		}
+		url += "/api/user/updateAuth";
+
+		remoteResponse = RestManager.getInstance().sendHttpPost(restTemplate, url, requestMap);
+		boolean resp = remoteResponse.getStatusCode() == 0;
+
+		if (!resp) {
+			return CommonUtils.fail("Sub System Failed");
+		}
+
+		clearLoginUser(CommonUtils.md5(userBean.getUsername()));
+		servletRequest.getSession().setAttribute(Constants.SESSION_KEY, "");
+		servletRequest.getSession().invalidate();
+
+		return CommonUtils.success();
 	}
 
 	private void setUserData(UserRegistrationRequest request, CommonUserEntity user) {
