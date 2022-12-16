@@ -126,6 +126,7 @@
                         window.localStorage.sessionKey = usernameHash
                         storage.fname = jsonData.fname
                         storage.role = role
+                        storage.position = jsonData.type
                         window.location = getPage('/dashboard/' + role)
                     }
                 })

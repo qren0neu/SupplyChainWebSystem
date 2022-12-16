@@ -40,18 +40,18 @@
   </script>
 
   <h1>404 Not Found</h1>
-  <p id=errorMessage>The page you are looking for could not be found.</p>
+  <p id=errorMessage>The page you are looking for need you to login.</p>
   <br>
   <br>
   <a onclick="history.go(-1)">Go Back</a>
   <a onclick="goHome()">Go Home</a>
-  <script>
+  <!-- <script>
     var errorMessage = document.location.search
     if (errorMessage != '') {
       errorMessage = errorMessage.split('=')[1];
       document.getElementById('errorMessage').innerHTML = errorMessage;
     }
-  </script>
+  </script> -->
 </body>
 
 </html>

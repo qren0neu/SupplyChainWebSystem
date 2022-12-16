@@ -24,6 +24,7 @@ public class CommonUtils {
 	 * Cannot be used for redirect!
 	 */
 	public static String page(String pageSub) {
+		Logger.log("Getting Page: " + "pages" + pageSub);
 		return "pages" + pageSub;
 	}
 
@@ -51,6 +52,12 @@ public class CommonUtils {
 	public static String errorPage() {
 		Logger.error("Redirect to error page due to violation.");
 		return "/error";
+	}
+	
+	public static String errorPage(String errorMessage) {
+		Logger.error("Redirect to error page due to violation." + errorMessage);
+		
+		return "/errorLogin";
 	}
 
 	/**

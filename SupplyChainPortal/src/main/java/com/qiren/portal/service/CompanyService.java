@@ -282,4 +282,8 @@ public class CompanyService {
 		return companyEntity;
 	}
 
+	public boolean isInSameCompany(String user1, String user2) {
+		
+		return companyUserRepository.countByUsers(user1, user2) != 0;
+	}
 }

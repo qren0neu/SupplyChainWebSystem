@@ -1,5 +1,7 @@
 package com.qiren.portal.entities;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +13,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "CommonUser")
-public class CommonUserEntity {
+public class CommonUserEntity implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

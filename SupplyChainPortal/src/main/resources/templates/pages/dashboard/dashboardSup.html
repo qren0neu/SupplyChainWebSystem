@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Page Title</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <style>
+        /* Style the main content area */
+        .main-content {
+            width: 80%;
+            margin: auto;
+            text-align: center;
+        }
+
+        .main-list {
+            width: 80%;
+            margin: auto;
+            text-align: left;
+        }
+
+        .list-title {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul id="toolbar-items">
+            <li><a onclick="location.href=dashboard">Home</a></li>
+            <li><a onclick="location.href=registerPage">Register</a></li>
+            <li><a onclick="location.href=logoutPage">Logout</a></li>
+            <li><a onclick="location.href=getPage('/dashboard/viewSelf')">View Self</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h3 id="user-welcome"></h3>
+        <p>What do you want to do today?</p>
+    </div>
+    <script>
+        var fnameForShow = storage.fname;
+
+        var welcomeTitle = document.getElementById('user-welcome');
+        welcomeTitle.innerHTML = 'Welcome, ' + fnameForShow;
+    </script>
+
+    <script>
+        var myPosition = storage.position;
+        // Get the ul element with the id toolbar-items
+        var toolbarItems = document.getElementById("toolbar-items");
+
+        if (myPosition == roleMap.distributor.companyManager) {
+            // 1
+            var item1 = document.createElement("li");
+            item1.innerHTML = "<a onclick='location.href=logoutPage'>Browse Staff</a>";
+            toolbarItems.appendChild(item1);
+            // 2
+        } else if (myPosition == roleMap.distributor.productManager) {
+
+        } else if (myPosition == roleMap.distributor.orderManager) {
+
+        } else if (myPosition == roleMap.distributor.routePlanner) {
+
+        } else {
+            window.location = '/portal/error'
+        }
+
+    </script>
+</body>
+
+</html>

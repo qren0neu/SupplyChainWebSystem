@@ -10,10 +10,38 @@ var temp = sp[sp.length - 1];
 
 // pages
 var dashboard = getPage('/dashboard/' + storage.role);
-var homepage = '/portal/perspective/' + storage.role;
+// var homepage = '/portal/perspective/' + storage.role;
+var homepage = '/portal/';
 var registerPage = getPage('/login/userRegister');
 var loginPage = getPage('/login/userLogin');
 var logoutPage = getPage('/login/userLogout');
+
+const roleMap = {
+    'customer': {
+        'name': 'customer',
+        'customer': 'Customer_CUS'
+    },
+    'distributor': {
+        'name': 'distributor',
+        'companyManager': 'CompanyManager_DIS',
+        'productManager': 'ProductManager_DIS',
+        'orderManager': 'OrderManager_DIS',
+        'routePlanner': 'RouterPlanner_DIS'
+    },
+    'supplier': {
+        'name': 'supplier',
+        'companyManager': 'CompanyManager_SUP',
+        'productManager': 'ProductManager_SUP',
+        'orderManager': 'OrderManager_SUP'
+    },
+    'manufacturer': {
+        'name': 'manufacturer',
+        'companyManager': 'CompanyManager_MAU',
+        'productManager': 'ProductManager_MAU',
+        'orderManager': 'OrderManager_MAU',
+        'routePlanner': 'RouterPlanner_MAU'
+    }
+}
 
 // if (roleList.includes(temp)) {
 //     role = temp;

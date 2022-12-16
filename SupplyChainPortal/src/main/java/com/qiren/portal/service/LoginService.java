@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
@@ -40,6 +41,10 @@ public class LoginService {
 	private RestTemplate restTemplate;
 
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	public boolean isLogin(HttpServletRequest request) {
+		return null == getLoginUser(request);
+	}
 
 	/**
 	 * Get login user info
@@ -90,22 +95,22 @@ public class LoginService {
 		}
 		return "";
 	}
-	
+
 	/**
 	 * Store customer into login table (not common user table)
 	 */
 	public CommonResponse customerRegisterLogin(String username, String role) {
 		// update common user
 		CommonUserEntity entity = findFullUserInfoByName(username);
-		
+
 		if (null == entity || Role.valueOf(entity.getRole().toUpperCase()) != Role.COMMON) {
 			// only change common user here!
 			return CommonUtils.fail("Invalid Request");
 		}
-		
+
 		entity.setRole(role);
 		userRepository.save(entity);
-		
+
 		// register to login table
 		boolean createLoginRes = createLogin(entity);
 		return createLoginRes ? CommonUtils.success() : CommonUtils.fail("");
@@ -130,13 +135,13 @@ public class LoginService {
 	 */
 	public CommonResponse login(String username, String password, HttpServletRequest request) {
 		CommonUserEntity userEntity = findUserInfoByName(CommonUtils.md5(username));
-		
+
 		if (null == userEntity) {
 			return CommonUtils.fail("Username not exist");
 		}
-		
+
 		String role = userEntity.getRole();
-		
+
 		CommonUserResponse response = null;
 		if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
 			response = customerLogin(username, password, userEntity.getFname());
@@ -149,32 +154,34 @@ public class LoginService {
 		} else {
 			response = otherLogin(username, password, role);
 		}
-		
+
 		if (null == response) {
 			return CommonUtils.fail("Wrong username or password");
 		}
-		
+
 		response.setFname(userEntity.getFname());
-		
+
 		CommonUserResponse remoteResponse = getUserInfoFromSubSystem(username, CommonUtils.md5(password), role);
 		if (null == remoteResponse) {
 			return CommonUtils.fail("Sub systems authorization failed");
 		}
-		
+
 		response.setType(remoteResponse.getType());
 
 		UserBean userBean = new UserBean();
-		
+
 		userBean.setFname(response.getFname());
 		userBean.setType(response.getType());
 		userBean.setRole(response.getRole());
 		userBean.setUsername(response.getUsername());
 		userBean.setUserid(userEntity.getPkUser() + "");
-		
+		// put as many as possible info here, redis is powerful
+		userBean.setCommonInfo(userEntity);
+
 		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
-		
+
 		HttpSession session = request.getSession();
-//		session.setAttribute(Constants.SESSION_KEY, response.getUserid());
+		// session.setAttribute(Constants.SESSION_KEY, response.getUserid());
 		session.setAttribute(Constants.SESSION_KEY, CommonUtils.md5(response.getUsername()));
 
 		return CommonUtils.success(response);
@@ -194,7 +201,7 @@ public class LoginService {
 		String roleString = userEntity.getRole();
 
 		CommonUserResponse userResponse = new CommonUserResponse();
-		
+
 		userResponse.setRole(roleString);
 		userResponse.setUsername(username);
 
@@ -202,11 +209,12 @@ public class LoginService {
 		UserBean userBean = new UserBean();
 		userBean.setFname(userEntity.getFname());
 		userBean.setRole(role);
-		//userBean.setUserid(userResponse.getUserid());
+		// userBean.setUserid(userResponse.getUserid());
 		userBean.setUsername(username);
 
-//		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
-		
+		// redisTemplate.opsForHash().put(Constants.SESSION_KEY,
+		// CommonUtils.md5(userBean.getUsername()), userBean);
+
 		return userResponse;
 	}
 
@@ -216,7 +224,8 @@ public class LoginService {
 	public CommonUserResponse customerLogin(String username, String password, String fname) {
 		// note: customer only!
 		// customer login
-		// we should probably also use usertable not logintable here, but I'm considering
+		// we should probably also use usertable not logintable here, but I'm
+		// considering
 		UserLoginEntity loginEntity = loginRepository.findByUsernameAndPassword(username, password);
 		if (null != loginEntity) {
 			CommonUserResponse userResponse = new CommonUserResponse();
@@ -230,10 +239,11 @@ public class LoginService {
 			userBean.setFname(fname);
 			userBean.setRole("customer");
 			userBean.setType(userResponse.getType());
-			//userBean.setUserid(userResponse.getUserid());
+			// userBean.setUserid(userResponse.getUserid());
 			userBean.setUsername(username);
 
-//			redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(userBean.getUsername()), userBean);
+			// redisTemplate.opsForHash().put(Constants.SESSION_KEY,
+			// CommonUtils.md5(userBean.getUsername()), userBean);
 
 			return userResponse;
 		} else {
@@ -258,7 +268,7 @@ public class LoginService {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Check the username(md5) here is the same as login user
 	 */
@@ -269,7 +279,6 @@ public class LoginService {
 		}
 		return userBean.getUsername().equals(username);
 	}
-
 
 	/**
 	 * Get all user info (without password)
@@ -313,48 +322,48 @@ public class LoginService {
 		loginRepository.save(entity);
 		return true;
 	}
-	
+
 	public CommonUserResponse getUserInfoFromSubSystem(String username, String password, String role) {
 		// password we need already hashed
 		HashMap<String, Object> requestMap = new HashMap<>();
-//		requestMap.put("userid", entity.getPkUser());
+		// requestMap.put("userid", entity.getPkUser());
 		requestMap.put("credential", password);
 		requestMap.put("identifier", username);
 		requestMap.put("role", role);
-		
+
 		String url = "";
 
 		Role enumCompanyRole = Role.valueOf(role.toUpperCase());
 		switch (enumCompanyRole) {
-		case SUPPLIER: {
-			url = Constants.URL_SUPPLIER;
-			break;
-		}
-		case DISTRIBUTOR: {
-			url = Constants.URL_DISTRIBUTOR;
-			break;
-		}
-		case MANUFACTURER: {
-			url = Constants.URL_MANUFACTURER;
-			break;
-		}
-		case ROUTER: {
-			url = Constants.URL_ROUTER;
-			break;
-		}
-		default:
-			return null;
+			case SUPPLIER: {
+				url = Constants.URL_SUPPLIER;
+				break;
+			}
+			case DISTRIBUTOR: {
+				url = Constants.URL_DISTRIBUTOR;
+				break;
+			}
+			case MANUFACTURER: {
+				url = Constants.URL_MANUFACTURER;
+				break;
+			}
+			case ROUTER: {
+				url = Constants.URL_ROUTER;
+				break;
+			}
+			default:
+				return null;
 		}
 
 		url += "/api/user/getAuth";
-		
+
 		CommonResponse remoteResponse = RestManager.getInstance().sendHttpPost(restTemplate, url, requestMap);
 		boolean success = remoteResponse.getStatusCode() == 0;
-		
+
 		if (!success) {
 			return null;
 		}
-		
+
 		String body = remoteResponse.getData();
 		CommonUserResponse userResponse = new Gson().fromJson(body, CommonUserResponse.class);
 		return userResponse;

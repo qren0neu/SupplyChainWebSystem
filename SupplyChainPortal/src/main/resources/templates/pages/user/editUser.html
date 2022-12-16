@@ -148,6 +148,41 @@
             <input type="button" value="Back" onclick="history.back()" style="float: left;">
             <input type="submit" value="Submit" style="float: right;">
         </form>
+
+        <script>
+            fetch(getApi('/login/viewUser/self'), {
+                method: 'POST',
+                headers: buildHttpHead()
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        user = JSON.parse(data.data)
+
+                        // Populate form fields using the CommonUser object
+                        document.getElementById("first-name").value = user.getFname();
+                        document.getElementById("middle-name").value = user.getMname();
+                        document.getElementById("last-name").value = user.getLname();
+                        document.getElementById("gender").value = user.getGender();
+                        document.getElementById("birthday").value = user.getBirthday();
+                        document.getElementById("address-1").value = user.getAddress1();
+                        document.getElementById("address-2").value = user.getAddress2();
+                        document.getElementById("email").value = user.getEmail();
+                        document.getElementById("phone").value = user.getPhone();
+                        document.getElementById("contact-preference").value = user.getPreference();
+                        document.getElementById("username").value = user.getUsername();
+                        document.getElementById("password").value = user.getPassword();
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        </script>
 </body>
 
 </html>

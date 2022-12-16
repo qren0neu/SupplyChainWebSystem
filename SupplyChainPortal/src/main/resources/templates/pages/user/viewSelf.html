@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <link th:href="@{/css/FormStyle.css}" rel="stylesheet">
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+</head>
+
+<body>
+    <script>
+        fetch(getApi('/login/viewUser/self'), {
+            method: 'POST',
+            headers: buildHttpHead()
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Process the response from the server
+                if (data.statusCode == 1) {
+                    showError(data.errorMessage)
+                } else {
+                    // window.alert(data.data)
+                    commonUserData = JSON.parse(data.data)
+
+                    // Get the div element where the table will be displayed
+                    var commonUserDataDiv = document.getElementById("common-user-data");
+
+                    // Create the table element
+                    var table = document.createElement("table");
+
+                    // Create the table header
+                    var headerRow = document.createElement("tr");
+                    var propertyHeader = document.createElement("th");
+                    propertyHeader.innerHTML = "Property";
+                    headerRow.appendChild(propertyHeader);
+                    var valueHeader = document.createElement("th");
+                    valueHeader.innerHTML = "Value";
+                    headerRow.appendChild(valueHeader);
+                    table.appendChild(headerRow);
+
+                    // Create a row for each piece of data
+                    var usernameRow = document.createElement("tr");
+                    usernameRow.innerHTML = "<td>Username</td><td>" + commonUserData.username + "</td>";
+                    table.appendChild(usernameRow);
+
+                    var passwordRow = document.createElement("tr");
+                    passwordRow.innerHTML = "<td>Password</td><td>" + '*****' + "</td>";
+                    table.appendChild(passwordRow);
+
+                    var dobRow = document.createElement("tr");
+                    dobRow.innerHTML = "<td>Date of Birth</td><td>" + commonUserData.dob + "</td>";
+                    table.appendChild(dobRow);
+
+                    var addressRow = document.createElement("tr");
+                    addressRow.innerHTML = "<td>Address</td><td>" + commonUserData.address1 + "</td>";
+                    table.appendChild(addressRow);
+
+                    var emailRow = document.createElement("tr");
+                    emailRow.innerHTML = "<td>Email</td><td>" + commonUserData.email + "</td>";
+                    table.appendChild(emailRow);
+
+                    var phoneRow = document.createElement("tr");
+                    phoneRow.innerHTML = "<td>Phone</td><td>" + commonUserData.phone + "</td>";
+                    table.appendChild(phoneRow);
+
+                    var preferenceRow = document.createElement("tr");
+                    preferenceRow.innerHTML = "<td>Preference</td><td>" + commonUserData.pref + "</td>";
+                    table.appendChild(preferenceRow);
+
+                    var roleRow = document.createElement("tr");
+                    roleRow.innerHTML = "<td>General Type</td><td>" + commonUserData.role + "</td>";
+                    table.appendChild(roleRow);
+
+                    var nameRow = document.createElement("tr");
+                    nameRow.innerHTML = "<td>Name</td><td>" + commonUserData.fname + " " + commonUserData.mname + " " + commonUserData.lname + "</td>";
+                    table.appendChild(nameRow);
+
+                    var genderRow = document.createElement("tr");
+                    genderRow.innerHTML = "<td>Gender</td><td>" + commonUserData.gender + "</td>";
+                    table.appendChild(genderRow);
+
+                    // Add the table to the page
+                    commonUserDataDiv.appendChild(table);
+                }
+            })
+            .catch(error => {
+                // Handle any errors
+                console.error(error);
+            });
+
+    </script>
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <div id="common-user-data" class="main-content">
+
+    </div>
+
+    <br />
+    <br />
+    <button onclick="">Edit Info</button>
+    <button onclick="history.back(-1)">Go back</button>
+</body>
+
+</html>
