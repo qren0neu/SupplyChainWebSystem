@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qiren.common.response.CommonResponse;
 import com.qiren.common.tools.CommonUtils;
-import com.qiren.common.tools.Logger;
 import com.qiren.supplier.entities.Item;
-import com.qiren.supplier.entities.Order;
 import com.qiren.supplier.request.OrderRequest;
 import com.qiren.supplier.request.ProductRequest;
 import com.qiren.supplier.service.OrderService;
@@ -52,7 +50,6 @@ public class SupplyController {
 	
 	@PostMapping("/order/create")
 	public CommonResponse createOrder(@RequestBody OrderRequest orderRequest) {
-//		Logger.log(orderRequest.toString());
 		try {
 			return orderService.createOrder(orderRequest);
 		} catch (Exception e) {
