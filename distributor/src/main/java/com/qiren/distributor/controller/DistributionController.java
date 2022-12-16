@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qiren.common.response.CommonResponse;
 import com.qiren.distributor.request.ItemPriceRequest;
-import com.qiren.distributor.request.ProductRequest;
 import com.qiren.distributor.service.ProductService;
 
 @RestController
