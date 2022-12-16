@@ -31,4 +31,7 @@ public class UserAuthEntity {
 
 	@Column(name = "role")
 	private String role;
+	
+	@Column(name = "fkcompany")
+	private int fkcompany;
 }

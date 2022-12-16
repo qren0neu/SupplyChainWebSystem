@@ -52,19 +52,19 @@ public class CompanyService {
 		companyEntities.addAll(companyRepository.findAll());
 		return CommonUtils.success(companyEntities);
 	}
-	
+
 	public CommonResponse viewSelfCompany(HttpServletRequest request, LoginService loginService) {
 		UserBean userBean = loginService.getLoginUser(request);
-		
+
 		if (null == userBean) {
 			return CommonUtils.fail("User not found");
 		}
-		
+
 		CommonUserEntity commonUserEntity = loginService.findUserInfoByName(userBean.getUsername());
-		
+
 		CompanyUserEntity companyUserEntity = companyUserRepository.findByUser(commonUserEntity);
-//		companyUserEntity.setUser(null);
-		
+		// companyUserEntity.setUser(null);
+
 		return CommonUtils.success(companyUserEntity.getCompany());
 	}
 
@@ -76,7 +76,7 @@ public class CompanyService {
 	 */
 	public CommonResponse registerCompanyAndModifyUser(LoginService loginService,
 			CompanyRegistrationRequest companyRegisRequest, String username) {
-		
+
 		CommonUserEntity entity = loginService.findFullUserInfoByName(username);
 
 		if (null == entity) {
@@ -106,52 +106,53 @@ public class CompanyService {
 			e.printStackTrace();
 			return CommonUtils.fail(e.getMessage());
 		}
-		
+
 		boolean resp = false;
 		// Step 3: save the user to remote project
 		CommonResponse remoteResponse = null;
-		
+
 		HashMap<String, Object> requestMap = new HashMap<>();
 		requestMap.put("userid", entity.getPkUser());
 		requestMap.put("credential", entity.getPassword());
 		requestMap.put("identifier", entity.getUsername());
 		requestMap.put("role", entity.getRole());
-		
+		requestMap.put("company", companyEntity.getPkCompany());
+
 		String url = "";
-		
+
 		switch (enumCompanyRole) {
-		case SUPPLIER: {
-			userRoleNew = InternalRole.Supplier.COMPANY_MANAGER;
-			url = Constants.URL_SUPPLIER;
-			break;
-		}
-		case DISTRIBUTOR: {
-			userRoleNew = InternalRole.Distributor.COMPANY_MANAGER;
-			url = Constants.URL_DISTRIBUTOR;
-			break;
-		}
-		case MANUFACTURER: {
-			url = Constants.URL_MANUFACTURER;
-			userRoleNew = InternalRole.Manufacturer.COMPANY_MANAGER;
-			break;
-		}
-		case ROUTER: {
-			url = Constants.URL_ROUTER;
-			userRoleNew = InternalRole.Router.ROUTE_PLANNER;
-			break;
-		}
-		default:
-			return CommonUtils.fail("Invalid input");
+			case SUPPLIER: {
+				userRoleNew = InternalRole.Supplier.COMPANY_MANAGER;
+				url = Constants.URL_SUPPLIER;
+				break;
+			}
+			case DISTRIBUTOR: {
+				userRoleNew = InternalRole.Distributor.COMPANY_MANAGER;
+				url = Constants.URL_DISTRIBUTOR;
+				break;
+			}
+			case MANUFACTURER: {
+				url = Constants.URL_MANUFACTURER;
+				userRoleNew = InternalRole.Manufacturer.COMPANY_MANAGER;
+				break;
+			}
+			case ROUTER: {
+				url = Constants.URL_ROUTER;
+				userRoleNew = InternalRole.Router.ROUTE_PLANNER;
+				break;
+			}
+			default:
+				return CommonUtils.fail("Invalid input");
 		}
 
 		requestMap.put("type", userRoleNew);
 		url += "/api/user/createAuth";
-		
+
 		remoteResponse = RestManager.getInstance().sendHttpPost(restTemplate, url, requestMap);
 		resp = remoteResponse.getStatusCode() == 0;
-		
+
 		// boolean resp = loginService.createLogin(entity, userRoleNew);
-		
+
 		CompanyUserEntity companyUserEntity = new CompanyUserEntity();
 		companyUserEntity.setCompany(companyEntity);
 		companyUserEntity.setUser(entity);
@@ -187,7 +188,7 @@ public class CompanyService {
 
 		String companyRole = chooseCompanyRequset.getCompanyRole();
 		// update user role
-		
+
 		entity.setRole(companyRole);
 		try {
 			userRepository.save(entity);
@@ -195,49 +196,50 @@ public class CompanyService {
 			e.printStackTrace();
 			return CommonUtils.fail(e.getMessage());
 		}
-		
+
 		boolean resp = false;
 		// save the user to remote project
 		CommonResponse remoteResponse = null;
-		
+
 		HashMap<String, Object> requestMap = new HashMap<>();
 		requestMap.put("userid", entity.getPkUser());
 		requestMap.put("credential", entity.getPassword());
 		requestMap.put("identifier", entity.getUsername());
 		requestMap.put("role", entity.getRole());
 		requestMap.put("type", chooseCompanyRequset.getPositionRole());
-		
+		requestMap.put("company", Long.parseLong(chooseCompanyRequset.getCompanyId()));
+
 		String url = "";
-		
+
 		Role enumCompanyRole = Role.valueOf(companyRole.toUpperCase());
-		
+
 		switch (enumCompanyRole) {
-		case SUPPLIER: {
-			url = Constants.URL_SUPPLIER;
-			break;
-		}
-		case DISTRIBUTOR: {
-			url = Constants.URL_DISTRIBUTOR;
-			break;
-		}
-		case MANUFACTURER: {
-			url = Constants.URL_MANUFACTURER;
-			break;
-		}
-		case ROUTER: {
-			url = Constants.URL_ROUTER;
-			break;
-		}
-		default:
-			return CommonUtils.fail("Invalid input");
+			case SUPPLIER: {
+				url = Constants.URL_SUPPLIER;
+				break;
+			}
+			case DISTRIBUTOR: {
+				url = Constants.URL_DISTRIBUTOR;
+				break;
+			}
+			case MANUFACTURER: {
+				url = Constants.URL_MANUFACTURER;
+				break;
+			}
+			case ROUTER: {
+				url = Constants.URL_ROUTER;
+				break;
+			}
+			default:
+				return CommonUtils.fail("Invalid input");
 		}
 
 		requestMap.put("type", chooseCompanyRequset.getPositionRole());
 		url += "/api/user/createAuth";
-		
+
 		remoteResponse = RestManager.getInstance().sendHttpPost(restTemplate, url, requestMap);
 		resp = remoteResponse.getStatusCode() == 0;
-		
+
 		CompanyEntity companyEntity = new CompanyEntity();
 		companyEntity.setPkCompany(Long.parseLong(chooseCompanyRequset.getCompanyId()));
 
@@ -258,7 +260,7 @@ public class CompanyService {
 
 		return CommonUtils.frontEndRedirect("/login/userLogin");
 	}
-	
+
 	/**
 	 * Register a new company
 	 */
@@ -275,6 +277,8 @@ public class CompanyService {
 			companyEntity.setCountry(registrationRequest.getCountry());
 
 			companyRepository.save(companyEntity);
+
+			companyEntity = companyRepository.findByName(companyEntity.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -283,7 +287,7 @@ public class CompanyService {
 	}
 
 	public boolean isInSameCompany(String user1, String user2) {
-		
+
 		return companyUserRepository.countByUsers(user1, user2) != 0;
 	}
 }

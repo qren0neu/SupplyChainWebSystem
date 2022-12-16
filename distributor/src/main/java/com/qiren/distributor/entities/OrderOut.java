@@ -1,7 +1,11 @@
 package com.qiren.distributor.entities;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,6 +17,7 @@ import lombok.Data;
 @Table(name = "order_out")
 public class OrderOut {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "pkorderout", nullable = false)
     private String pkorderout;
 
@@ -20,13 +25,13 @@ public class OrderOut {
     private String quantity;
 
     @Column(name = "startdate", nullable = false, columnDefinition = "date")
-    private String startdate;
+    private Date startdate;
 
     @Column(name = "esttime", nullable = false)
     private int esttime;
 
     @Column(name = "fkcustomer", nullable = false, columnDefinition = "varchar(45)")
-    private String fkcustomer;
+    private long fkcustomer;
 
     @ManyToOne
     @JoinColumn(name = "fkorderin", nullable = false, columnDefinition = "varchar(45)")

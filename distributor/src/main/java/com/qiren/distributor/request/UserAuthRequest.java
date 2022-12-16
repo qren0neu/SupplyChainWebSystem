@@ -15,4 +15,6 @@ public class UserAuthRequest {
 
 	private String role;
 	
+	private int company;
+	
 }

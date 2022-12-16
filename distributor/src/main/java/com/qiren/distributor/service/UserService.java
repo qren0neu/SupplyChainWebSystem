@@ -23,6 +23,7 @@ public class UserService {
 		entity.setIdentifier(userAuthRequest.getIdentifier());
 		entity.setRole(userAuthRequest.getRole());
 		entity.setType(userAuthRequest.getType());
+		entity.setFkcompany(userAuthRequest.getCompany());
 
 		try {
 			userAuthRepo.save(entity);

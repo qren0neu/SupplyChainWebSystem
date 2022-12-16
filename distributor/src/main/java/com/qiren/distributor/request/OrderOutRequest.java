@@ -24,7 +24,7 @@ public class OrderOutRequest {
     private String company;
 
     @NotNull
-    private String customer;
+    private long customer;
 
     @NotNull
     private String orderin;
