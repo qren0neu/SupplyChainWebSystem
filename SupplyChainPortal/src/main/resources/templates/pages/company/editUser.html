@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registration</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <link th:href="@{/css/FormStyle.css}" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+
+</head>
+
+<body>
+
+    <script>
+        function parseForm(form) {
+            var data = {};
+            for (var i = 0, ii = form.length; i < ii; ++i) {
+                var input = form[i];
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            }
+            return data;
+        }
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationForm");
+            form.appendChild(errorMessage);
+        }
+
+        function showErrorLogin(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message-login'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationFormLogin");
+            form.appendChild(errorMessage);
+        }
+
+        function submitForm(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('registrationForm');
+            var error = document.getElementById('error-message')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var formData = parseForm(form);
+            var jsonString = JSON.stringify(formData);
+
+            // Check that the password and confirm password fields match
+            if (formData["password"] != formData["password-confirm"]) {
+                // Show an error message if the fields do not match
+                showError("The password and confirm password fields do not match.");
+                return;
+            }
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/login/userUpdate/common'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        window.location = dashboard;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+
+        function submitFormLogin(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('registrationFormLogin');
+            var error = document.getElementById('error-message-login')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var formData = parseForm(form);
+            var jsonString = JSON.stringify(formData);
+
+            // Check that the password and confirm password fields match
+            if (formData["password"] != formData["password-confirm"]) {
+                // Show an error message if the fields do not match
+                showErrorLogin("The password and confirm password fields do not match.");
+                return;
+            }
+
+            // Send the form data to the server using the POST method
+            fetch(getApi('/login/userUpdate/login'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        showErrorLogin(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        window.location = homepage;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
+
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>Staff Form</h1>
+        <form id='registrationForm' , onsubmit="submitForm(event)">
+            <label for="first-name">First Name:</label><br>
+            <input type="text" id="first-name" name="fname"><br>
+
+            <label for="middle-name">Middle Name:</label><br>
+            <input type="text" id="middle-name" name="mname"><br>
+
+            <label for="last-name">Last Name:</label><br>
+            <input type="text" id="last-name" name="lname"><br>
+
+            <!-- Gender selection field -->
+            <label for="gender">Gender:</label><br>
+            <select id="gender" name="gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select><br>
+
+            <label for="birthday">Birthday:</label><br>
+            <input type="date" id="birthday" name="birthday"><br>
+
+            <label for="address-1">Address 1:</label><br>
+            <input type="text" id="address-1" name="address1"><br>
+
+            <label for="address-2">Address 2:</label><br>
+            <input type="text" id="address-2" name="address2"><br>
+
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"><br>
+
+            <label for="phone">Phone:</label><br>
+            <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"><br>
+
+            <label for="contact-preference">Preferred Contact Method:</label><br>
+            <select id="contact-preference" name="preference">
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+            </select><br>
+
+            <br>
+
+            <input type="submit" value="Submit" style="float: right;">
+        </form>
+
+        <form id='registrationFormLogin' , onsubmit="submitFormLogin(event)">
+
+            <br>
+
+            <div>
+                <p style="font-style:italic;">Note: You may logout if you change values below:</p>
+            </div>
+
+            <br>
+
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br>
+
+            <!-- Confirm password field -->
+            <label for="password-confirm">Confirm Password:</label><br>
+            <input type="password" id="password-confirm" name="password-confirm"><br>
+
+            <br>
+
+            <input type="button" value="Back" onclick="history.back()" style="float: left;">
+            <input type="submit" value="Submit" style="float: right;">
+        </form>
+
+        <script>
+            var user = null;
+
+            fetch(getApi('/company/viewUser/' + temp), {
+                method: 'POST',
+                headers: buildHttpHead()
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        user = JSON.parse(data.data)
+
+                        // Populate form fields using the CommonUser object
+                        document.getElementById("first-name").value = user.fname;
+                        document.getElementById("middle-name").value = user.mname;
+                        document.getElementById("last-name").value = user.lname;
+                        document.getElementById("gender").value = user.gender;
+                        document.getElementById("birthday").value = user.dob;
+                        document.getElementById("address-1").value = user.address1;
+                        document.getElementById("address-2").value = user.address2;
+                        document.getElementById("email").value = user.email;
+                        document.getElementById("phone").value = user.phone;
+                        document.getElementById("contact-preference").value = user.pref;
+                        document.getElementById("username").value = user.username;
+                        // document.getElementById("password").value = user.password;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        </script>
+</body>
+
+</html>

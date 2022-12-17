@@ -23,7 +23,7 @@
     <br />
     <br />
 
-    <h2>Select your company and role</h2>
+    <h2>View All Staff</h2>
 
     <div id="table-container" , class="main-content">
         <p id="error-message"></p>
@@ -72,9 +72,10 @@
         // Add an event listener to the table that will handle row clicks
         table.addEventListener("click", eventHandler);
 
-        var companyList = null;
+        var jsonDataStr = null;
+        var jsonDataList = null;
 
-        fetch(getApi('/company/viewAll'), {
+        fetch(getApi('/company/viewAllUser'), {
             method: 'POST',
             headers: buildHttpHead()
         })
@@ -83,23 +84,23 @@
                 if (data.statusCode == 1) {
                     showError(data.errorMessage);
                 } else {
-                    var jsonDataStr = data.data;
-                    var jsonDataList = JSON.parse(jsonDataStr);
+                    jsonDataStr = data.data;
+                    jsonDataList = JSON.parse(jsonDataStr);
 
                     // Create the table header
                     var headerRow = document.createElement("tr");
                     var optionHeader = document.createElement("th");
-                    optionHeader.innerHTML = "Number";
+                    optionHeader.innerHTML = "UserId";
                     headerRow.appendChild(optionHeader);
                     var descriptionHeader = document.createElement("th");
-                    descriptionHeader.innerHTML = "Company Name";
+                    descriptionHeader.innerHTML = "Name";
                     headerRow.appendChild(descriptionHeader);
                     var typeHeader = document.createElement("th");
-                    typeHeader.innerHTML = "Company Type";
+                    typeHeader.innerHTML = "Gender";
                     headerRow.appendChild(typeHeader);
                     table.appendChild(headerRow);
 
-                    companyList = jsonDataList;
+                    // companyList = jsonDataList;
 
                     var counter = 1;
 
@@ -109,30 +110,16 @@
                         // 1
                         var row = document.createElement("tr");
                         var option = document.createElement("td");
-                        option.innerHTML = "" + counter;
+                        option.innerHTML = item[0];
                         row.appendChild(option);
                         // 2
                         var nameCompany = document.createElement("td");
-                        nameCompany.innerHTML = item.name;
+                        nameCompany.innerHTML = item[1];
                         row.appendChild(nameCompany);
                         // 3
                         var typeCompany = document.createElement("td");
 
-                        var typeString = '';
-
-                        if (item.role == 'supplier') {
-                            typeString = 'Raw Material Supplier'
-                        } else if (item.role == 'distributor') {
-                            typeString = 'Product Distributor'
-                        } else if (item.role == 'manufacturer') {
-                            typeString = 'Product Manufacturer'
-                        } else if (item.role == 'router') {
-                            typeString = 'Product Delivery & Tracking'
-                        } else {
-                            typeString = item.role;
-                        }
-
-                        typeCompany.innerHTML = typeString;
+                        typeCompany.innerHTML = item[2];
                         row.appendChild(typeCompany);
                         table.appendChild(row);
 
@@ -148,15 +135,26 @@
                 console.error(error);
             });
 
+        function viewUser() {
+
+            var myusername = storage.sessionKey;
+            console.log(myusername);
+
+            selectedIndex = selectedRow.rowIndex;
+
+            username = jsonDataList[selectedIndex - 1][0];
+
+            var usernameHash = CryptoJS.MD5(username);
+            if (usernameHash == myusername) {
+                location.href = getPage('/dashboard/editSelf')
+            } else {
+                location.href = getPage('/company/viewStaff/' + usernameHash)
+            }
+        }
     </script>
 
 
-    <button id="chooseCompany" onclick="selectType()">Make Your Choice</button>
-    <button id="chooseRole" onclick="sendToServer()">Choose your role</button>
-
-    <script>
-        document.getElementById('chooseRole').style.display = 'none'
-    </script>
+    <button id="chooseCompany" onclick="viewUser()">Make Your Choice</button>
 </body>
 
 </html>

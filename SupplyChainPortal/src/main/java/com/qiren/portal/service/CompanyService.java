@@ -3,12 +3,16 @@ package com.qiren.portal.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.ListModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.qiren.common.response.CommonResponse;
+import com.qiren.common.response.CommonUserResponse;
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Constants;
 import com.qiren.common.tools.InternalRole;
@@ -24,6 +28,9 @@ import com.qiren.portal.repository.CompanyUserRepository;
 import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -37,6 +44,10 @@ public class CompanyService {
 	private CommonUserRepository userRepository;
 	@Autowired
 	private RestTemplate restTemplate;
+	@PersistenceContext
+	private EntityManager entityManager;
+	@Autowired
+	private LoginService loginService;
 
 	/**
 	 * Get all company by "supplier", "distributor", etc
@@ -289,5 +300,75 @@ public class CompanyService {
 	public boolean isInSameCompany(String user1, String user2) {
 
 		return companyUserRepository.countByUsers(user1, user2) != 0;
+	}
+	
+	public List<Object[]> getAllStaff(HttpServletRequest request, String companyId) {
+		
+		UserBean userBean = loginService.getLoginUser(request);
+		long userIdString = userBean.getCommonInfo().getPkUser();
+		
+		String sqlString = "select username, concat(fname, ' ', mname, ' ', lname) 'fullname', gender from supply_chain_portal.user_company uc join supply_chain_portal.common_user cu on uc.fkuser = cu.pkuser join supply_chain_portal.company cm on uc.fkcompany = cm.pkcompany where uc.fkcompany = ? and exists (select fkUser from supply_chain_portal.user_company where fkCompany = ? and fkuser = ?);";
+		
+		Query query = entityManager.createNativeQuery(sqlString);
+		query.setParameter(1, companyId);
+		query.setParameter(2, companyId);
+		query.setParameter(3, userIdString);
+		
+		return query.getResultList();
+	}
+	
+	public List<Object[]> getAllStaff(HttpServletRequest request) {
+		
+		UserBean userBean = loginService.getLoginUser(request);
+		
+		if (null == userBean) {
+			return null;
+		}
+		
+		long userIdString = userBean.getCommonInfo().getPkUser();
+		
+		CompanyUserEntity companyUserEntity = companyUserRepository.findByUser(userBean.getCommonInfo());
+		
+		String sqlString = "select username, concat(fname, ' ', mname, ' ', lname) 'fullname', gender from supply_chain_portal.user_company uc join supply_chain_portal.common_user cu on uc.fkuser = cu.pkuser join supply_chain_portal.company cm on uc.fkcompany = cm.pkcompany where uc.fkcompany = ? and exists (select fkUser from supply_chain_portal.user_company where fkCompany = ? and fkuser = ?);";
+		
+		Query query = entityManager.createNativeQuery(sqlString);
+		query.setParameter(1, companyUserEntity.getCompany().getPkCompany());
+		query.setParameter(2, companyUserEntity.getCompany().getPkCompany());
+		query.setParameter(3, userIdString);
+		
+		return query.getResultList();
+	}
+	
+	public boolean isManager(HttpServletRequest request) {
+		UserBean userBean = loginService.getLoginUser(request);
+		
+		if (null == userBean) {
+			return false;
+		}
+		
+		return InternalRole.Distributor.COMPANY_MANAGER.equals(userBean.getType())
+				|| InternalRole.Supplier.COMPANY_MANAGER.equals(userBean.getType())
+				|| InternalRole.Manufacturer.COMPANY_MANAGER.equals(userBean.getType());
+	}
+
+	public CommonUserEntity getCompanyUserInfo(HttpServletRequest request, 
+			String username) {
+		CommonUserEntity entity = loginService.findFullUserInfoByName(username);
+		
+		long uid = entity.getPkUser();
+		
+		UserBean userBean = loginService.getLoginUser(request);
+		
+		if (null == userBean) {
+			return null;
+		}
+		
+		long myid = userBean.getCommonInfo().getPkUser();
+		
+		if (!isInSameCompany(myid + "", uid + "")) {
+			return null;
+		}
+		
+		return entity;
 	}
 }

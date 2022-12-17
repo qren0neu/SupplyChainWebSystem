@@ -82,6 +82,10 @@ public class CommonUtils {
 		response.setData(gson.toJson(data));
 		return response;
 	}
+	
+	public static final CommonResponse successOrFail(Object data) {
+		return data == null ? fail("Error") : success(data);
+	}
 
 	/**
 	 * Common failure response

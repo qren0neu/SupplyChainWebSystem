@@ -11,16 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.qiren.common.response.CommonResponse;
 import com.qiren.common.tools.CommonUtils;
-import com.qiren.common.tools.Constants;
-import com.qiren.common.tools.InternalRole;
 import com.qiren.common.tools.Logger;
-import com.qiren.common.tools.Role;
-import com.qiren.portal.entities.CommonUserEntity;
 import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
 import com.qiren.portal.service.CompanyService;
 import com.qiren.portal.service.LoginService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -61,5 +58,30 @@ public class CompanyApiController {
 	public @ResponseBody CommonResponse findCompanyAll() {
 		Logger.log("findCompanyAll ");
 		return companyService.findAllCompany();
+	}
+
+//	@PostMapping("/viewAllUser/{company}")
+//	public @ResponseBody CommonResponse findUserAll(
+//			HttpServletRequest request,
+//			@PathVariable String company) {
+//		Logger.log("findCompanyAllStaff ");
+//		return CommonUtils.success(companyService.getAllStaff(request, company));
+//	}
+
+	@PostMapping("/viewAllUser")
+	public @ResponseBody CommonResponse findUserAllIn(
+			HttpServletRequest request) {
+		Logger.log("findCompanyAllStaff ");
+		Object object = companyService.getAllStaff(request);
+		return CommonUtils.successOrFail(object);
+	}
+	
+
+	@PostMapping("/viewUser/{username}")
+	public @ResponseBody CommonResponse findUser (
+			HttpServletRequest request, @PathVariable String username) {
+		Logger.log("findCompanyAllStaff ");
+		
+		return CommonUtils.successOrFail(companyService.getCompanyUserInfo(request, username));
 	}
 }
