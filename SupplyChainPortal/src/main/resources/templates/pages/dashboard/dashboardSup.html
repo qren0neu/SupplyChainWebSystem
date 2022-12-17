@@ -64,7 +64,14 @@
             toolbarItems.appendChild(item1);
             // 2
         } else if (myPosition == roleMap.supplier.productManager) {
-
+            // 1
+            var item1 = document.createElement("li");
+            var target = '/portal/pages/supplier/viewProduct';
+            item1.innerHTML = "<a>Browse Product</a>";
+            item1.onclick = function jump() {
+                location.href = target;
+            };
+            toolbarItems.appendChild(item1);
         } else if (myPosition == roleMap.supplier.orderManager) {
 
         } else if (myPosition == roleMap.supplier.routePlanner) {

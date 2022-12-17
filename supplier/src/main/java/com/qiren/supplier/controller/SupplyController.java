@@ -12,10 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qiren.common.response.CommonResponse;
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.supplier.entities.Item;
+import com.qiren.supplier.entities.UserAuthEntity;
 import com.qiren.supplier.request.OrderRequest;
 import com.qiren.supplier.request.ProductRequest;
+import com.qiren.supplier.request.RequestWrapper;
 import com.qiren.supplier.service.OrderService;
 import com.qiren.supplier.service.ProductService;
+import com.qiren.supplier.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api")
@@ -25,6 +30,8 @@ public class SupplyController {
 	private ProductService productService;
 	@Autowired
 	private OrderService orderService;
+	@Autowired
+	private UserService userService;
 	
 	@PostMapping("/product/viewAll")
 	public CommonResponse getAllItems() {
@@ -34,13 +41,30 @@ public class SupplyController {
 
 	@PostMapping("/price/create")
 	public CommonResponse createItemPrice(
-			@RequestBody ProductRequest request) {
-		return productService.saveItemPrice(request);
+			HttpServletRequest servletRequest,
+			@RequestBody RequestWrapper request) {
+		
+		UserAuthEntity userAuthEntity = userService.getAuth(servletRequest);
+		
+		int company = userAuthEntity.getFkcompany();
+		
+		return productService.saveItemPrice(request.getData(), company);
 	}
 
 	@PostMapping("/price/byCompany/{companyId}")
 	public CommonResponse findAllItemPriceByCompany(@PathVariable long companyId) {
 		return productService.getPriceByCompany(companyId);
+	}
+
+	@PostMapping("/price/byCompany")
+	public CommonResponse findAllItemPriceByCompany2(
+			HttpServletRequest servletRequest) {
+
+		UserAuthEntity userAuthEntity = userService.getAuth(servletRequest);
+		
+		int company = userAuthEntity.getFkcompany();
+		
+		return productService.getPriceByCompany(company);
 	}
 
 	@PostMapping("/price/byItem/{itemId}")

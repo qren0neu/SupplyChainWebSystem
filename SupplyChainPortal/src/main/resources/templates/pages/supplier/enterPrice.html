@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Registration</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <link th:href="@{/css/FormStyle.css}" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+
+</head>
+
+<body>
+
+    <script>
+        var remoteData = null;
+
+        function parseForm(form) {
+            var data = {};
+            for (var i = 0, ii = form.length; i < ii; ++i) {
+                var input = form[i];
+                if (input.name) {
+                    data[input.name] = input.value;
+                }
+            }
+            return data;
+        }
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationForm");
+            form.appendChild(errorMessage);
+        }
+
+        function showErrorLogin(message) {
+            // Create an error message element
+            var errorMessage = document.createElement("p");
+            errorMessage.id = 'error-message-login'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+
+            // Add the error message to the page
+            var form = document.getElementById("registrationFormLogin");
+            form.appendChild(errorMessage);
+        }
+
+        var jsonString = null;
+
+        function submitFormLogin(event) {
+            // Prevent the form from being submitted
+            event.preventDefault();
+
+            // Get the form data
+            // const formData = new FormData(event.target);
+
+            var form = document.getElementById('price-form');
+            var error = document.getElementById('error-message-login')
+            if (error != undefined && error != null) {
+                form.removeChild(error)
+            }
+            var formData = parseForm(form);
+
+            var formList = [];
+            var newJson1 = {
+                'id': remoteData[0].pkItemPrice,
+                'item': 1,
+                'price': formData.item1_price,
+                'unit': 50,
+                'instock': formData.item1_instock,
+                'status': 0
+            }
+            var newJson2 = {
+                'id': remoteData[1].pkItemPrice,
+                'item': 2,
+                'price': formData.item2_price,
+                'unit': 1,
+                'instock': formData.item2_instock,
+                'status': 0
+            }
+            var newJson3 = {
+                'id': remoteData[2].pkItemPrice,
+                'item': 3,
+                'price': formData.item3_price,
+                'unit': 50,
+                'instock': formData.item3_instock,
+                'status': 0
+            }
+            formList = formList.concat(newJson1);
+            formList = formList.concat(newJson2);
+            formList = formList.concat(newJson3);
+            formList = {
+                'data': formList
+            }
+
+            jsonString = JSON.stringify(formList);
+
+            // window.alert(formData)
+
+
+
+            // Send the form data to the server using the POST method
+            fetch(getRemoteApi('/price/create'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: jsonString
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        window.alert(data.errorMessage)
+                    } else {
+                        // window.alert(data.data)
+                        window.location = homepage;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
+
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>Price Form</h1>
+        <form id="price-form" onsubmit="submitFormLogin(event)">
+            <label for="item1_price">Plastic price:</label><br>
+            <input type="number" id="item1_price" name="item1_price"><br>
+            <label for="item1_instock">Plastic in stock:</label><br>
+            <input type="number" id="item1_instock" name="item1_instock"><br>
+            <label for="item2_price">Chip price:</label><br>
+            <input type="number" id="item2_price" name="item2_price"><br>
+            <label for="item2_instock">Chip in stock:</label><br>
+            <input type="number" id="item2_instock" name="item2_instock"><br>
+            <label for="item3_price">Iron price:</label><br>
+            <input type="number" id="item3_price" name="item3_price"><br>
+            <label for="item3_instock">Iron in stock:</label><br>
+            <input type="number" id="item3_instock" name="item3_instock"><br>
+            <input type="button" value="Back" onclick="history.back()" style="float: left;">
+            <input type="submit" value="Submit" style="float: right;">
+        </form>
+
+
+
+        <script>
+            var user = null;
+
+            fetch(getRemoteApi('/price/byCompany'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Process the response from the server
+                    if (data.statusCode == 1) {
+                        //showError(data.errorMessage)
+                    } else {
+                        if (null == data.data || '[]' == data.data) {
+                            return;
+                        }
+                        var jsonString = data.data;
+                        var jsonObject = JSON.parse(jsonString);
+                        remoteData = jsonObject;
+                        // 1
+                        firstJson = jsonObject[0]
+                        document.getElementById('item1_price').value = firstJson.price;
+                        document.getElementById('item1_instock').value = firstJson.inStock;
+
+                        // 2
+                        secondJson = jsonObject[1]
+                        document.getElementById('item2_price').value = secondJson.price;
+                        document.getElementById('item2_instock').value = secondJson.inStock;
+
+                        // 3
+                        thirdJson = jsonObject[2]
+                        document.getElementById('item3_price').value = thirdJson.price;
+                        document.getElementById('item3_instock').value = thirdJson.inStock;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        </script>
+</body>
+
+</html>

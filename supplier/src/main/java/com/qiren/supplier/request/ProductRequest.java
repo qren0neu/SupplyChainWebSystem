@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ProductRequest {
+	private long id;
 	private long item;
 	private long company;
 	private float price;

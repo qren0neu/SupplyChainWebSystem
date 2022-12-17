@@ -18,9 +18,11 @@ import org.springframework.web.util.UriUtils;
 import com.qiren.common.response.CommonResponse;
 import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Constants;
+import com.qiren.common.tools.Logger;
 import com.qiren.common.tools.RestManager;
 import com.qiren.common.tools.Role;
 import com.qiren.portal.beans.UserBean;
+import com.qiren.portal.entities.CommonUserEntity;
 import com.qiren.portal.service.LoginService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,14 +41,18 @@ public class RequestResendController {
             HttpServletRequest servletRequest,
             @RequestParam String path,
             @RequestBody HashMap<String, Object> requestBody) {
+        Logger.log("forwardRequest");
         UserBean userBean = loginService.getLoginUser(servletRequest);
 
         if (null == userBean) {
             return CommonUtils.fail("Not login");
         }
+        
+        CommonUserEntity userEntity = 
+        		loginService.findFullUserInfoByName(CommonUtils.md5(userBean.getUsername()));
 
         String username = userBean.getUsername();
-        String password = userBean.getCommonInfo().getPassword();
+        String password = userEntity.getPassword();
         String type = userBean.getType();
 
         String token = CommonUtils.md5(username + "_" + password + "_" + type);
@@ -57,6 +63,8 @@ public class RequestResendController {
         // String role = "distributor";
         Role enumCompanyRole = Role.valueOf(role.toUpperCase());
 
+        Logger.log(token);
+        
         String url = "";
 
         switch (enumCompanyRole) {
@@ -83,7 +91,12 @@ public class RequestResendController {
 
         Map<String, Object> headers = new HashMap<>();
         headers.put("customToken", token);
+        headers.put("username", username);
+        headers.put("password", password);
+        headers.put("type", type);
 
+        Logger.log(url);
+        
         CommonResponse remoteResponse = RestManager.getInstance().sendHttpPostWithHeader(restTemplate, url, headers,
                 requestBody);
         return remoteResponse;

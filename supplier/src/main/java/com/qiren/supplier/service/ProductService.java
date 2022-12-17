@@ -11,6 +11,7 @@ import com.qiren.supplier.repository.ItemPriceRepo;
 import com.qiren.supplier.repository.ItemRepo;
 import com.qiren.supplier.request.ProductRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,21 +26,31 @@ public class ProductService {
 		return itemRepo.findAll();
 	}
 	
-	public CommonResponse saveItemPrice(ProductRequest request) {
+	public CommonResponse saveItemPrice(List<ProductRequest> requests, int company) {
 		
-		Item item = new Item();
-		item.setPkItem(request.getItem());
+		List<ItemPrice> itemPrices = new ArrayList<>();
 		
-		ItemPrice itemPrice = new ItemPrice();
-		itemPrice.setFkItem(item);
-		itemPrice.setInStock(request.getInstock());
-		itemPrice.setPrice(request.getPrice());
-		itemPrice.setStatus(request.getStatus());
-		itemPrice.setUnit(request.getUnit());
-		itemPrice.setFkCompany(request.getCompany());
+		for (ProductRequest request : requests) {
+			Item item = new Item();
+			item.setPkItem(request.getItem());
+			
+			ItemPrice itemPrice = new ItemPrice();
+			
+			if (request.getId() > 0) {
+				itemPrice.setPkItemPrice(request.getId());
+			}
+			
+			itemPrice.setFkItem(item);
+			itemPrice.setInStock(request.getInstock());
+			itemPrice.setPrice(request.getPrice());
+			itemPrice.setStatus(request.getStatus());
+			itemPrice.setUnit(request.getUnit());
+			itemPrice.setFkCompany(company);
+			itemPrices.add(itemPrice);
+		}
 		
 		try {
-			itemPriceRepo.save(itemPrice);
+			itemPriceRepo.saveAll(itemPrices);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return CommonUtils.fail("create failed");
