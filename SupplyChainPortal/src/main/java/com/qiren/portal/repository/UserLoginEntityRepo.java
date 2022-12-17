@@ -11,4 +11,7 @@ public interface UserLoginEntityRepo extends JpaRepository<UserLoginEntity, Stri
 
 	@Query(value = "select * from user_login where identifier = ?1 and credential = md5(?2)", nativeQuery = true)
 	UserLoginEntity findByUsernameAndPassword(String username, String password);
+	
+	@Query(value = "select * from user_login where identifier = ?1", nativeQuery = true)
+	UserLoginEntity findByUsername(String username);
 }

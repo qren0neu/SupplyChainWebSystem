@@ -81,7 +81,7 @@ public class RouteApiController {
 		}
 
 		Logger.log("pass1");
-		
+
 		String itemTypeString = requestParams.get("itemtype").toString();
 		String quantityString = requestParams.get("quan").toString();
 
@@ -121,13 +121,13 @@ public class RouteApiController {
 		query.setParameter(1, companyId);
 
 		List<Object[]> resultList = query.getResultList();
-		
+
 		List<List<String>> temp = new ArrayList<>();
 
 		for (List<Float> innerList : listCompany) {
 			for (Object[] array : resultList) {
 				// company match
-				if ((int)innerList.get(2).floatValue() == ((Number) array[4]).intValue()) {
+				if ((int) innerList.get(2).floatValue() == ((Number) array[4]).intValue()) {
 					// found a match
 					System.out.println("Match found: " + innerList.get(2) + "," + array[4]);
 					List<String> tempList = new ArrayList<>();
@@ -143,13 +143,11 @@ public class RouteApiController {
 				}
 			}
 		}
-		
+
 		return CommonUtils.success(temp);
 
 //		return CommonUtils.success(CommonUtils.simpleSql(routeSqlString, entityManager, companyId));
 	}
-	
-	
 
 	@PostMapping("/listSupplier/test")
 	public CommonResponse listSupplierTest(HttpServletRequest request,
@@ -189,26 +187,25 @@ public class RouteApiController {
 //		long companyId = companyUserEntity.getCompany().getPkCompany();
 		long companyId = 14L;
 
-
 		Query query = entityManager.createNativeQuery(routeSqlString);
 
 		query.setParameter(1, companyId);
-		
+
 		List<Object[]> resultList = query.getResultList();
 
 		for (List<Float> innerList : listCompany) {
 			System.out.print("Interating");
 			for (Object[] array : resultList) {
-				System.out.println((int)innerList.get(2).floatValue() + " " + ((Number) array[4]).intValue());
-				if ((int)innerList.get(2).floatValue() == ((Number) array[4]).intValue()) {
+				System.out.println((int) innerList.get(2).floatValue() + " " + ((Number) array[4]).intValue());
+				if ((int) innerList.get(2).floatValue() == ((Number) array[4]).intValue()) {
 					// found a match
 					System.out.println("Match found: " + innerList.get(2) + "," + array[4]);
 				}
 			}
 		}
-		
+
 //		return CommonUtils.success();
-		
+
 		return CommonUtils.success(CommonUtils.simpleSql(routeSqlString, entityManager, companyId));
 	}
 }

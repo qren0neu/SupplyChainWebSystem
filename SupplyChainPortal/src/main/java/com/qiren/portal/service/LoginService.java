@@ -254,8 +254,7 @@ public class LoginService {
 	}
 
 	/**
-	 * Get all user info (with password)
-	 * note that here the username is md5
+	 * Get all user info (with password) note that here the username is md5
 	 */
 	public CommonUserEntity findFullUserInfoByName(String userName) {
 		// note that here the username is md5
@@ -283,8 +282,7 @@ public class LoginService {
 	}
 
 	/**
-	 * Get all user info (without password)
-	 * note that here the username is md5
+	 * Get all user info (without password) note that here the username is md5
 	 */
 	public CommonUserEntity findUserInfoByName(String userName) {
 		// safe method to avoid returning password
@@ -298,8 +296,7 @@ public class LoginService {
 	}
 
 	/**
-	 * Save user into login table (not common table)
-	 * Customer Only
+	 * Save user into login table (not common table) Customer Only
 	 */
 	public boolean createLogin(CommonUserEntity userEntity) {
 		// customer only
@@ -337,29 +334,29 @@ public class LoginService {
 
 		Role enumCompanyRole = Role.valueOf(role.toUpperCase());
 		switch (enumCompanyRole) {
-			case SUPPLIER: {
-				url = Constants.URL_SUPPLIER;
-				break;
-			}
-			case DISTRIBUTOR: {
-				url = Constants.URL_DISTRIBUTOR;
-				break;
-			}
-			case MANUFACTURER: {
-				url = Constants.URL_MANUFACTURER;
-				break;
-			}
-			case ROUTER: {
-				url = Constants.URL_ROUTER;
-				break;
-			}
-			default:
-				UserLoginEntity userLoginEntity = loginRepository.findByUsernameAndPassword(username, password);
-				CommonUserResponse commonUserResponse = new CommonUserResponse();
-				commonUserResponse.setRole(userLoginEntity.getRole());
-				commonUserResponse.setType(userLoginEntity.getType());
-				commonUserResponse.setUsername(userLoginEntity.getIdentifier());
-				return commonUserResponse;
+		case SUPPLIER: {
+			url = Constants.URL_SUPPLIER;
+			break;
+		}
+		case DISTRIBUTOR: {
+			url = Constants.URL_DISTRIBUTOR;
+			break;
+		}
+		case MANUFACTURER: {
+			url = Constants.URL_MANUFACTURER;
+			break;
+		}
+		case ROUTER: {
+			url = Constants.URL_ROUTER;
+			break;
+		}
+		default:
+			UserLoginEntity userLoginEntity = loginRepository.findByUsernameAndPassword(username, password);
+			CommonUserResponse commonUserResponse = new CommonUserResponse();
+			commonUserResponse.setRole(userLoginEntity.getRole());
+			commonUserResponse.setType(userLoginEntity.getType());
+			commonUserResponse.setUsername(userLoginEntity.getIdentifier());
+			return commonUserResponse;
 		}
 
 		url += "/api/user/getAuth";
@@ -414,7 +411,7 @@ public class LoginService {
 		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(user.getUsername()), userBean);
 		return CommonUtils.success();
 	}
-	
+
 	/**
 	 * Update user username and password
 	 */
@@ -424,8 +421,9 @@ public class LoginService {
 		if (null == userBean) {
 			return CommonUtils.fail("Not logged in");
 		}
-
+		
 		CommonUserEntity user = userBean.getCommonInfo();
+		String oriPasswordString = user.getPassword();
 		user.setUsername(loginRequest.getUsername());
 		user.setPassword(CommonUtils.md5(loginRequest.getPassword()));
 
@@ -452,24 +450,35 @@ public class LoginService {
 		String url = "";
 
 		switch (enumCompanyRole) {
-			case SUPPLIER: {
-				url = Constants.URL_SUPPLIER;
-				break;
-			}
-			case DISTRIBUTOR: {
-				url = Constants.URL_DISTRIBUTOR;
-				break;
-			}
-			case MANUFACTURER: {
-				url = Constants.URL_MANUFACTURER;
-				break;
-			}
-			case ROUTER: {
-				url = Constants.URL_ROUTER;
-				break;
-			}
-			default:
-				return CommonUtils.fail("Invalid input");
+		case SUPPLIER: {
+			url = Constants.URL_SUPPLIER;
+			break;
+		}
+		case DISTRIBUTOR: {
+			url = Constants.URL_DISTRIBUTOR;
+			break;
+		}
+		case MANUFACTURER: {
+			url = Constants.URL_MANUFACTURER;
+			break;
+		}
+		case ROUTER: {
+			url = Constants.URL_ROUTER;
+			break;
+		}
+		case CUSTOMER: {
+			UserLoginEntity userLoginEntity = loginRepository.findByUsername(user.getUsername());
+			userLoginEntity.setIdentifier(loginRequest.getUsername());
+			userLoginEntity.setCredential(loginRequest.getPassword());
+			loginRepository.save(userLoginEntity);
+
+			clearLoginUser(CommonUtils.md5(userBean.getUsername()));
+			servletRequest.getSession().setAttribute(Constants.SESSION_KEY, "");
+			servletRequest.getSession().invalidate();
+			return CommonUtils.success();
+		}
+		default:
+			return CommonUtils.fail("Invalid input");
 		}
 		url += "/api/user/updateAuth";
 
