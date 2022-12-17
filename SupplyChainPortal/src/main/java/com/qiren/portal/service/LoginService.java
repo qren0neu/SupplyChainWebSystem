@@ -414,7 +414,7 @@ public class LoginService {
 		redisTemplate.opsForHash().put(Constants.SESSION_KEY, CommonUtils.md5(user.getUsername()), userBean);
 		return CommonUtils.success();
 	}
-
+	
 	/**
 	 * Update user username and password
 	 */

@@ -71,7 +71,7 @@
             }
 
             // Send the form data to the server using the POST method
-            fetch(getApi('/login/userUpdate/common'), {
+            fetch(getApi('/company/userUpdate/common/' + temp), {
                 method: 'POST',
                 headers: buildHttpHead(),
                 body: jsonString
@@ -114,7 +114,7 @@
             }
 
             // Send the form data to the server using the POST method
-            fetch(getApi('/login/userUpdate/login'), {
+            fetch(getApi('/company/userUpdate/login/' + temp), {
                 method: 'POST',
                 headers: buildHttpHead(),
                 body: jsonString
@@ -125,7 +125,7 @@
                         showErrorLogin(data.errorMessage)
                     } else {
                         // window.alert(data.data)
-                        window.location = homepage;
+                        window.location = dashboard;
                     }
                 })
                 .catch(error => {

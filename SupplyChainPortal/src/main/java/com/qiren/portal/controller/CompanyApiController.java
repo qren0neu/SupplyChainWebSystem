@@ -14,6 +14,8 @@ import com.qiren.common.tools.CommonUtils;
 import com.qiren.common.tools.Logger;
 import com.qiren.portal.request.ChooseCompanyRequset;
 import com.qiren.portal.request.CompanyRegistrationRequest;
+import com.qiren.portal.request.UserUpdateLoginRequest;
+import com.qiren.portal.request.UserUpdateRequest;
 import com.qiren.portal.service.CompanyService;
 import com.qiren.portal.service.LoginService;
 
@@ -83,5 +85,29 @@ public class CompanyApiController {
 		Logger.log("findCompanyAllStaff ");
 		
 		return CommonUtils.successOrFail(companyService.getCompanyUserInfo(request, username));
+	}
+
+	@PostMapping("/userUpdate/common/{username}")
+	public CommonResponse updateUserCommonInfo(
+			@PathVariable String username,
+			HttpServletRequest servletRequest,
+			@Valid @RequestBody UserUpdateRequest updateRequest,
+			BindingResult result) {
+		if (result.hasErrors()) {
+			return CommonUtils.bindingError(result);
+		}
+		return companyService.updateOthersCommonInfo(servletRequest, updateRequest, username);
+	}
+
+	@PostMapping("/userUpdate/login/{username}")
+	public CommonResponse updateUserLoginInfo(
+			@PathVariable String username,
+			HttpServletRequest servletRequest,
+			@Valid @RequestBody UserUpdateLoginRequest updateLoginRequest,
+			BindingResult result) {
+		if (result.hasErrors()) {
+			return CommonUtils.bindingError(result);
+		}
+		return companyService.updateLoginInfo(servletRequest, updateLoginRequest, username);
 	}
 }
