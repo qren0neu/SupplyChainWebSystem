@@ -83,7 +83,53 @@ public class SupplyController {
 	}
 	
 	@PostMapping("/order/byCompany/{companyId}")
-	public CommonResponse findAllOrderByCompany(@PathVariable String companyId) {
+	public CommonResponse findAllOrderByCompany(
+			@PathVariable String companyId) {
+		
+//		UserAuthEntity userAuthEntity = userService.getAuth(servletRequest);
+//		
+//		int company = userAuthEntity.getFkcompany();
+		
 		return orderService.getOrderItemsByCompany(companyId);
+	}
+	
+	@PostMapping("/order/byCompany")
+	public CommonResponse findAllOrderByCompany2(
+			HttpServletRequest servletRequest) {
+		
+		UserAuthEntity userAuthEntity = userService.getAuth(servletRequest);
+		
+		int company = userAuthEntity.getFkcompany();
+		
+		return orderService.getOrderItemsByCompany(company + "");
+	}
+	
+//	@PostMapping("/order/byCompan")
+//	public CommonResponse findAllOrderByCompany(@PathVariable String companyId) {
+//		return orderService.getOrderItemsByCompany(companyId);
+//	}
+	
+	@PostMapping("/product/available/{itemtype}/{quan}")
+	public CommonResponse findAllAvailable(@PathVariable String itemtype, @PathVariable String quan) {
+		String sqlString = "SELECT * FROM supply_chain_supplier.item_price where fkItem = ? and instock > ?	; ";
+		
+		// pk, fkitm, company, price, unit, instock, status
+		
+		return productService.getAvailable(sqlString, itemtype, quan);
+	}
+	
+	@PostMapping("/product/availableByCompany/{itemtype}/{quan}")
+	public CommonResponse findAllAvailableByCompany(
+			HttpServletRequest servletRequest,
+			@PathVariable String itemtype, @PathVariable String quan) {
+		String sqlString = "SELECT * FROM supply_chain_supplier.item_price where fkItem = ? and instock > ? and fkcompany = ?; ";
+
+		UserAuthEntity userAuthEntity = userService.getAuth(servletRequest);
+		
+		int company = userAuthEntity.getFkcompany();
+		
+		String companyString = company + "";
+		
+		return productService.getAvailable(sqlString, itemtype, quan, companyString);
 	}
 }

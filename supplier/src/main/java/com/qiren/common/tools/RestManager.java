@@ -52,10 +52,13 @@ public class RestManager {
 		HttpHeaders headers = new HttpHeaders();
 
 		for (String key : header.keySet()) {
+			Logger.log("add header" + key + header.get(key));
 			headers.add(key, header.get(key).toString());
 		}
+		
+		headers.add("Content-Type", "application/json");
 
-		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+		HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
 
 		ResponseEntity<String> response = template.exchange(url, HttpMethod.POST, requestEntity, String.class);
 

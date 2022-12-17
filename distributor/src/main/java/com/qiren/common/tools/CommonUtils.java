@@ -23,8 +23,8 @@ public class CommonUtils {
 	}
 
 	/**
-	 * Get server html pages (thymeleaf), cannot return api here!
-	 * Cannot be used for redirect!
+	 * Get server html pages (thymeleaf), cannot return api here! Cannot be used for
+	 * redirect!
 	 */
 	public static String page(String pageSub) {
 		Logger.log("Getting Page: " + "pages" + pageSub);
@@ -39,8 +39,8 @@ public class CommonUtils {
 	}
 
 	/**
-	 * Send back a {@code CommonResponse} and let frontend itself to redirect
-	 * Using window.location
+	 * Send back a {@code CommonResponse} and let frontend itself to redirect Using
+	 * window.location
 	 */
 	public static CommonResponse frontEndRedirect(String pageSub) {
 		CommonResponse response = new CommonResponse();
@@ -56,10 +56,10 @@ public class CommonUtils {
 		Logger.error("Redirect to error page due to violation.");
 		return "/error";
 	}
-	
+
 	public static String errorPage(String errorMessage) {
 		Logger.error("Redirect to error page due to violation." + errorMessage);
-		
+
 		return "/errorLogin";
 	}
 
@@ -85,11 +85,11 @@ public class CommonUtils {
 		response.setData(gson.toJson(data));
 		return response;
 	}
-	
+
 	public static final CommonResponse successOrFail(Object data) {
 		return data == null ? fail("Error") : success(data);
 	}
-	
+
 	public static final CommonResponse successOrFail(boolean data) {
 		return !data ? fail("Error") : success(data);
 	}
@@ -116,33 +116,33 @@ public class CommonUtils {
 		String error = sb.toString();
 		return fail(error);
 	}
-	
-	public static Object simpleSql(EntityManager entityManager, String sql, Object... args) {
-		
+
+	public static Object simpleSql(String sql, EntityManager entityManager, Object... args) {
+
 		Query query = entityManager.createNativeQuery(sql);
-		
+
 		int i = 1;
-		
+
 		for (Object object : args) {
 			query.setParameter(i, object);
 			i++;
 		}
-		
+
 		return query.getResultList();
 	}
-	
+
 	public static Object simpleSql(EntityManager entityManager, String sql) {
 		Query query = entityManager.createNativeQuery(sql);
-		
+
 		return query.getResultList();
 	}
-	
+
 	public static Object singleSql(EntityManager entityManager, String sql) {
 		Query query = entityManager.createNativeQuery(sql);
-		
+
 		return query.getSingleResult();
 	}
-	
+
 	public static Object singleSql(EntityManager entityManager, String sql, Object... args) {
 		Query query = entityManager.createNativeQuery(sql);
 
@@ -151,10 +151,10 @@ public class CommonUtils {
 			query.setParameter(i, object);
 			i++;
 		}
-		
+
 		return query.getSingleResult();
 	}
-	
+
 	public static Object simpleExecute(String sql, EntityManager entityManager, Object... args) {
 		Query query = entityManager.createNativeQuery(sql);
 
@@ -163,7 +163,7 @@ public class CommonUtils {
 			query.setParameter(i, object);
 			i++;
 		}
-		
+
 		return query.executeUpdate();
 	}
 }

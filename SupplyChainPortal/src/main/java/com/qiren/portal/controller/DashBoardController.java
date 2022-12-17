@@ -106,6 +106,16 @@ public class DashBoardController {
 
 		return CommonUtils.page("/dashboard/routeService");
 	}
+
+	@GetMapping(path = "/viewManufactureRoutes")
+	public String viewManufactureRoutes(HttpServletRequest request) {
+
+		if (!loginService.isLogin(request)) {
+			return CommonUtils.errorPage(null);
+		}
+
+		return CommonUtils.page("/manufacturer/viewRoute");
+	}
 	
 //	@PostMapping("/viewRoutes/next/{service}")
 //	public String viewRoutesNext(HttpServletRequest request) {

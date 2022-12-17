@@ -38,4 +38,14 @@ public class SupController {
 		return CommonUtils.page("/supplier/enterPrice");
 //		return CommonUtils.page("/supplier/viewProduct");
 	}
+	
+	@GetMapping("/viewOrder")
+	public String viewOrder(HttpServletRequest request) {
+		
+		if (!loginService.isLogin(request)) {
+			return CommonUtils.errorPage(null);
+		}
+		
+		return CommonUtils.page("/supplier/viewOrder");
+	}
 }

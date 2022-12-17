@@ -65,6 +65,13 @@
             // 2
         } else if (myPosition == roleMap.manufacturer.productManager) {
 
+            var item1 = document.createElement("li");
+            var target = '/portal/pages/dashboard/viewManufactureRoutes';
+            item1.innerHTML = "<a>Browse Materials</a>";
+            item1.onclick = function jump() {
+                location.href = target;
+            };
+            toolbarItems.appendChild(item1);
         } else if (myPosition == roleMap.manufacturer.orderManager) {
 
         } else if (myPosition == roleMap.manufacturer.routePlanner) {

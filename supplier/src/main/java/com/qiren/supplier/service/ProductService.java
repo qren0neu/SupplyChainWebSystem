@@ -11,6 +11,9 @@ import com.qiren.supplier.repository.ItemPriceRepo;
 import com.qiren.supplier.repository.ItemRepo;
 import com.qiren.supplier.request.ProductRequest;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,8 @@ public class ProductService {
 	private ItemRepo itemRepo;
 	@Autowired
 	private ItemPriceRepo itemPriceRepo;
+	@PersistenceContext
+	private EntityManager entityManager;
 	
 	public List<Item> getAllAItems() {
 		return itemRepo.findAll();
@@ -78,5 +83,13 @@ public class ProductService {
 			e.printStackTrace();
 			return CommonUtils.fail("cannot get");
 		}
+	}
+	
+	public CommonResponse getAvailable(String sql, String type, String quan) {
+		return CommonUtils.success(CommonUtils.simpleSql(sql, entityManager, type, quan));
+	}
+	
+	public CommonResponse getAvailable(String sql, String type, String quan, String company) {
+		return CommonUtils.success(CommonUtils.simpleSql(sql, entityManager, type, quan, company));
 	}
 }
