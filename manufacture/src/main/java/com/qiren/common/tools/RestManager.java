@@ -1,10 +1,23 @@
 package com.qiren.common.tools;
 
+import java.util.Map;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 import com.qiren.common.response.CommonResponse;
 
+/**
+ * 
+ * Sending HTTP
+ * 
+ * @author renqi
+ *
+ */
 public class RestManager {
 
 	public static RestManager getInstance() {
@@ -24,6 +37,32 @@ public class RestManager {
 	public CommonResponse sendHttpPost(RestTemplate template, String url, Object body) {
 		CommonResponse responseBody = template.postForObject(url, body, CommonResponse.class);
 		return responseBody;
+	}
+
+	public CommonResponse sendHttpGetWithHeader(RestTemplate template, String url, Map<String, Object> header,
+			Object body) {
+		CommonResponse commonResponse = new CommonResponse();
+		return commonResponse;
+	}
+
+	public CommonResponse sendHttpPostWithHeader(RestTemplate template, String url, Map<String, Object> header,
+			Object body) {
+		CommonResponse commonResponse = new CommonResponse();
+
+		HttpHeaders headers = new HttpHeaders();
+
+		for (String key : header.keySet()) {
+			headers.add(key, header.get(key).toString());
+		}
+
+		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+		ResponseEntity<String> response = template.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+		String result = response.getBody();
+		CommonResponse remote = new Gson().fromJson(result, CommonResponse.class);
+
+		return remote;
 	}
 
 	private RestManager() {
