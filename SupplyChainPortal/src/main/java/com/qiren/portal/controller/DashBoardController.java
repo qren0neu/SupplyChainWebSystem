@@ -77,4 +77,13 @@ public class DashBoardController {
 		return CommonUtils.page("/user/editUser");
 	}
 
+	@GetMapping(path = "/viewCompanyUser")
+	public String viewCompanyUser(HttpServletRequest request) {
+
+		if (!loginService.isLogin(request)) {
+			return CommonUtils.errorPage(null);
+		}
+
+		return CommonUtils.page("/company/companyUser");
+	}
 }

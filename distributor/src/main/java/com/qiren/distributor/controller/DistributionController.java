@@ -41,4 +41,21 @@ public class DistributionController {
 	public CommonResponse createOrderIn(@RequestBody OrderInRequset orderInRequset) {
 		return orderService.createOrderIn(orderInRequset);
 	}
+	
+	@PostMapping("/orderout/viewAll/{company}")
+	public CommonResponse viewOrderOut(@PathVariable long company) {
+		//  "[[\"test1234\",\"5f554057-d91f-4f58-9591-67bddbc40b40\",\"pending\",\"NEU Phone\",100.0,\"10\"]]"
+		// orderout_id, orderin_id, status, name, price, quantity
+		return orderService.viewOrders(company);
+	}
+	
+	@PostMapping("/price/test/{companyId}")
+	public CommonResponse getAvailableTest(@PathVariable long companyId) {
+		return orderService.getAvailableItemFromCompany(1, companyId);
+	}
+	
+	@PostMapping("/product/viewAll/{companyId}")
+	public CommonResponse getAvailableItemFromCompany(@PathVariable long companyId) {
+		return orderService.getInStockFromCompany(companyId);
+	}
 }

@@ -2,6 +2,10 @@ package com.qiren.common.tools;
 
 import java.util.Map;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
@@ -44,7 +48,21 @@ public class RestManager {
 	public CommonResponse sendHttpPostWithHeader(RestTemplate template, String url, Map<String, Object> header,
 			Object body) {
 		CommonResponse commonResponse = new CommonResponse();
-		return commonResponse;
+
+		HttpHeaders headers = new HttpHeaders();
+
+		for (String key : header.keySet()) {
+			headers.add(key, header.get(key).toString());
+		}
+
+		HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+		ResponseEntity<String> response = template.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+		String result = response.getBody();
+		CommonResponse remote = new Gson().fromJson(result, CommonResponse.class);
+
+		return remote;
 	}
 
 	private RestManager() {

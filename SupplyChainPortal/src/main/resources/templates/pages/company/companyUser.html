@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Company Form</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <link th:href="@{/css/FormStyle.css}" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+</head>
+
+<body>
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>Select your company and role</h2>
+
+    <div id="table-container" , class="main-content">
+        <p id="error-message"></p>
+    </div>
+
+    <br />
+    <br />
+
+    <button onclick="history.back()">Back</button>
+
+
+    <script>
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.getElementById('error-message');
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+        }
+
+        // Create the table element
+        var table = document.createElement("table");
+
+        // Create a variable to keep track of the selected row
+        var selectedRow = null;
+        var selectedIndex = 0;
+
+        function eventHandler(event) {
+            // Get the clicked row
+            var clickedRow = event.target.parentNode;
+
+            // Check if a row is already selected
+            if (selectedRow) {
+                // If a row is already selected, unselect it
+                selectedRow.classList.remove("selected");
+            }
+
+            // Select the clicked row
+            clickedRow.classList.add("selected");
+
+            // Update the selected row variable
+            selectedRow = clickedRow;
+        }
+
+        // Add an event listener to the table that will handle row clicks
+        table.addEventListener("click", eventHandler);
+
+        var companyList = null;
+
+        fetch(getApi('/company/viewAll'), {
+            method: 'POST',
+            headers: buildHttpHead()
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.statusCode == 1) {
+                    showError(data.errorMessage);
+                } else {
+                    var jsonDataStr = data.data;
+                    var jsonDataList = JSON.parse(jsonDataStr);
+
+                    // Create the table header
+                    var headerRow = document.createElement("tr");
+                    var optionHeader = document.createElement("th");
+                    optionHeader.innerHTML = "Number";
+                    headerRow.appendChild(optionHeader);
+                    var descriptionHeader = document.createElement("th");
+                    descriptionHeader.innerHTML = "Company Name";
+                    headerRow.appendChild(descriptionHeader);
+                    var typeHeader = document.createElement("th");
+                    typeHeader.innerHTML = "Company Type";
+                    headerRow.appendChild(typeHeader);
+                    table.appendChild(headerRow);
+
+                    companyList = jsonDataList;
+
+                    var counter = 1;
+
+                    // Create some rows for the table
+                    jsonDataList.forEach(item => {
+                        console.log(item);
+                        // 1
+                        var row = document.createElement("tr");
+                        var option = document.createElement("td");
+                        option.innerHTML = "" + counter;
+                        row.appendChild(option);
+                        // 2
+                        var nameCompany = document.createElement("td");
+                        nameCompany.innerHTML = item.name;
+                        row.appendChild(nameCompany);
+                        // 3
+                        var typeCompany = document.createElement("td");
+
+                        var typeString = '';
+
+                        if (item.role == 'supplier') {
+                            typeString = 'Raw Material Supplier'
+                        } else if (item.role == 'distributor') {
+                            typeString = 'Product Distributor'
+                        } else if (item.role == 'manufacturer') {
+                            typeString = 'Product Manufacturer'
+                        } else if (item.role == 'router') {
+                            typeString = 'Product Delivery & Tracking'
+                        } else {
+                            typeString = item.role;
+                        }
+
+                        typeCompany.innerHTML = typeString;
+                        row.appendChild(typeCompany);
+                        table.appendChild(row);
+
+                        counter += 1;
+                    });
+
+                    // Add the table to the page
+                    document.getElementById("table-container").appendChild(table);
+                }
+            })
+            .catch(error => {
+                // Handle any errors
+                console.error(error);
+            });
+
+    </script>
+
+
+    <button id="chooseCompany" onclick="selectType()">Make Your Choice</button>
+    <button id="chooseRole" onclick="sendToServer()">Choose your role</button>
+
+    <script>
+        document.getElementById('chooseRole').style.display = 'none'
+    </script>
+</body>
+
+</html>

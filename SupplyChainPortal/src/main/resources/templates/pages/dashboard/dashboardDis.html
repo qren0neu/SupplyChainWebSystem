@@ -57,7 +57,11 @@
         if (myPosition == roleMap.distributor.companyManager) {
             // 1
             var item1 = document.createElement("li");
-            item1.innerHTML = "<a onclick='location.href=logoutPage'>Browse Staff</a>";
+            var target = '/portal/pages/dashboard/viewCompanyUser';
+            item1.innerHTML = "<a>Browse Staff</a>";
+            item1.onclick = function jump() {
+                location.href = target;
+            };
             toolbarItems.appendChild(item1);
             // 2
         } else if (myPosition == roleMap.distributor.productManager) {

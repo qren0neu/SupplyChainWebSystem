@@ -55,6 +55,10 @@ function getApi(apiPath) {
     return '/portal/api' + apiPath
 }
 
+function getRemoteApi(apiPath) {
+    return '/portal/api/forward?path=' + encodeURIComponent('/api/' + apiPath);
+}
+
 function getPage(pagePath) {
     return '/portal/pages' + pagePath
 }
