@@ -353,6 +353,41 @@ public class CompanyService {
 				|| InternalRole.Manufacturer.COMPANY_MANAGER.equals(userBean.getType());
 	}
 
+	public boolean isRouter(HttpServletRequest request) {
+		UserBean userBean = loginService.getLoginUser(request);
+
+		if (null == userBean) {
+			return false;
+		}
+
+		return InternalRole.Distributor.ROUTE_PLANNER.equals(userBean.getType())
+				|| InternalRole.Manufacturer.ROUTE_PLANNER.equals(userBean.getType());
+	}
+
+	public boolean isProductManager(HttpServletRequest request) {
+		UserBean userBean = loginService.getLoginUser(request);
+
+		if (null == userBean) {
+			return false;
+		}
+
+		return InternalRole.Distributor.PRODUCT_MANAGER.equals(userBean.getType())
+				|| InternalRole.Supplier.PRODUCT_MANAGER.equals(userBean.getType())
+				|| InternalRole.Manufacturer.PRODUCT_MANAGER.equals(userBean.getType());
+	}
+
+	public boolean isOrderManager(HttpServletRequest request) {
+		UserBean userBean = loginService.getLoginUser(request);
+
+		if (null == userBean) {
+			return false;
+		}
+
+		return InternalRole.Distributor.ORDER_MANAGER.equals(userBean.getType())
+				|| InternalRole.Supplier.ORDER_MANAGER.equals(userBean.getType())
+				|| InternalRole.Manufacturer.ORDER_MANAGER.equals(userBean.getType());
+	}
+
 	public CommonUserEntity getCompanyUserInfo(HttpServletRequest request, String username) {
 		CommonUserEntity entity = loginService.findFullUserInfoByName(username);
 

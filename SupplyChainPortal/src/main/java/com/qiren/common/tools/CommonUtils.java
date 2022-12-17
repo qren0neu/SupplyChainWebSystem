@@ -10,6 +10,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.qiren.common.response.CommonResponse;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+
 public class CommonUtils {
 
 	/**
@@ -86,6 +89,10 @@ public class CommonUtils {
 	public static final CommonResponse successOrFail(Object data) {
 		return data == null ? fail("Error") : success(data);
 	}
+	
+	public static final CommonResponse successOrFail(boolean data) {
+		return !data ? fail("Error") : success(data);
+	}
 
 	/**
 	 * Common failure response
@@ -108,5 +115,55 @@ public class CommonUtils {
 		}
 		String error = sb.toString();
 		return fail(error);
+	}
+	
+	public static Object simpleSql(EntityManager entityManager, String sql, Object... args) {
+		
+		Query query = entityManager.createNativeQuery(sql);
+		
+		int i = 1;
+		
+		for (Object object : args) {
+			query.setParameter(i, object);
+			i++;
+		}
+		
+		return query.getResultList();
+	}
+	
+	public static Object simpleSql(EntityManager entityManager, String sql) {
+		Query query = entityManager.createNativeQuery(sql);
+		
+		return query.getResultList();
+	}
+	
+	public static Object singleSql(EntityManager entityManager, String sql) {
+		Query query = entityManager.createNativeQuery(sql);
+		
+		return query.getSingleResult();
+	}
+	
+	public static Object singleSql(EntityManager entityManager, String sql, Object... args) {
+		Query query = entityManager.createNativeQuery(sql);
+
+		int i = 1;
+		for (Object object : args) {
+			query.setParameter(i, object);
+			i++;
+		}
+		
+		return query.getSingleResult();
+	}
+	
+	public static Object simpleExecute(String sql, EntityManager entityManager, Object... args) {
+		Query query = entityManager.createNativeQuery(sql);
+
+		int i = 1;
+		for (Object object : args) {
+			query.setParameter(i, object);
+			i++;
+		}
+		
+		return query.executeUpdate();
 	}
 }

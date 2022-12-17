@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Company Form</title>
+    <link th:href="@{/css/MainStyle.css}" rel="stylesheet">
+    <link th:href="@{/css/FormStyle.css}" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script type="text/javascript" th:src="@{/js/src/MyScript.js}"></script>
+</head>
+
+<body>
+
+    <div class="toolbar">
+        <h1>Supply Chain System</h1>
+
+        <!-- Add a navigation menu -->
+        <ul>
+            <li><a onclick="backToMain()">Home</a></li>
+        </ul>
+    </div>
+
+    <br />
+    <br />
+
+    <h2>View Route Service</h2>
+
+    <div id="table-container" , class="main-content">
+        <table id="my-table">
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Transportation Types</th>
+                    <th>Factor</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <p id="error-message"></p>
+        <h2>Select A Company</h2>
+        <table id="company-table">
+            <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Company Name</th>
+                    <th>Company Type</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <br />
+    <br />
+
+    <label for="distance-input">Please input the distance between(KM):</label><br>
+    <input type="number" id="distance-input" name="distance" value="1000"><br>
+
+    <br />
+    <br />
+
+    <button onclick="history.back()">Back</button>
+
+
+    <script>
+
+        function showError(message) {
+            // Create an error message element
+            var errorMessage = document.getElementById('error-message');
+            errorMessage.id = 'error-message'
+            errorMessage.innerHTML = message;
+            errorMessage.style.color = "red";
+        }
+
+        // Create the table element
+        // var table = document.createElement("table");
+        var table = document.getElementById('my-table');
+
+        // Create a variable to keep track of the selected row
+        var selectedRow = null;
+        var selectedIndex = 0;
+
+        function eventHandler(event) {
+            // Get the clicked row
+            var clickedRow = event.target.parentNode;
+
+            // Check if a row is already selected
+            if (selectedRow) {
+                // If a row is already selected, unselect it
+                selectedRow.classList.remove("selected");
+            }
+
+            // Select the clicked row
+            clickedRow.classList.add("selected");
+
+            // Update the selected row variable
+            selectedRow = clickedRow;
+        }
+
+        // Add an event listener to the table that will handle row clicks
+        table.addEventListener("click", eventHandler);
+
+        var jsonDataStr = null;
+        var jsonDataList = null;
+
+        fetch(getApi('/route/viewAllService'), {
+            method: 'POST',
+            headers: buildHttpHead()
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.statusCode == 1) {
+                    showError(data.errorMessage);
+                } else {
+                    jsonDataStr = data.data;
+                    jsonDataList = JSON.parse(jsonDataStr);
+                    for (const row of jsonDataList) {
+                        const tr = document.createElement('tr');
+                        for (const cell of row) {
+                            const td = document.createElement('td');
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        }
+                        table.appendChild(tr);
+                    }
+                }
+            })
+            .catch(error => {
+                // Handle any errors
+                console.error(error);
+            });
+
+        var companyRole = '';
+        var companyTable = document.getElementById('company-table');
+        // Create a variable to keep track of the selected row
+        var companyselectedRow = null;
+        var companyselectedIndex = 0;
+
+        var selectedCompany = null;
+
+        function eventHandler2(event) {
+            // Get the clicked row
+            var clickedRow = event.target.parentNode;
+
+            // Check if a row is already selected
+            if (selectedCompany) {
+                // If a row is already selected, unselect it
+                selectedCompany.classList.remove("selected");
+            }
+
+            // Select the clicked row
+            clickedRow.classList.add("selected");
+
+            // Update the selected row variable
+            selectedCompany = clickedRow;
+        }
+
+        companyTable.addEventListener("click", eventHandler2);
+
+        if (storage.role == 'distributor') {
+            companyRole = 'manufacturer';
+        } else {
+            companyRole = 'supplier';
+        }
+        var companyList = [];
+        var counter = 1;
+
+        fetch(getApi('/company/viewAll/' + companyRole), {
+            method: 'POST',
+            headers: buildHttpHead()
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.statusCode == 1) {
+                    showError(data.errorMessage);
+                } else {
+                    var str = data.data;
+                    companyList = JSON.parse(str);
+                    // Create some rows for the table
+                    companyList.forEach(item => {
+                        console.log(item);
+                        // 1
+                        var row = document.createElement("tr");
+                        var option = document.createElement("td");
+                        option.innerHTML = "" + counter;
+                        row.appendChild(option);
+                        // 2
+                        var nameCompany = document.createElement("td");
+                        nameCompany.innerHTML = item.name;
+                        row.appendChild(nameCompany);
+                        // 3
+                        var typeCompany = document.createElement("td");
+
+                        var typeString = '';
+
+                        if (item.role == 'supplier') {
+                            typeString = 'Raw Material Supplier'
+                        } else if (item.role == 'distributor') {
+                            typeString = 'Product Distributor'
+                        } else if (item.role == 'manufacturer') {
+                            typeString = 'Product Manufacturer'
+                        } else if (item.role == 'router') {
+                            typeString = 'Product Delivery & Tracking'
+                        } else {
+                            typeString = item.role;
+                        }
+
+                        typeCompany.innerHTML = typeString;
+                        row.appendChild(typeCompany);
+
+                        // 4 
+                        var cLocation = document.createElement("td");
+                        cLocation.innerHTML = item.city + ', ' + item.state;
+                        row.appendChild(cLocation);
+
+                        companyTable.appendChild(row);
+
+                        counter += 1;
+                    });
+                }
+            })
+            .catch(error => {
+                // Handle any errors
+                console.error(error);
+            });
+
+        function createRoute() {
+            if (selectedCompany == null || selectedRow == null) {
+                window.alert('No selection')
+            }
+
+            let input = document.getElementById('distance-input');
+            let value = input.value;
+
+            let daysEstimated = Math.round(value / 1000);
+
+            let companyId = companyList[selectedCompany.rowIndex - 1].pkCompany
+            let serviceId = jsonDataList[selectedRow.rowIndex - 1][0]
+
+            let requestData = {
+                'company': companyId,
+                'service': serviceId,
+                'est': daysEstimated
+            }
+
+            fetch(getApi('/route/buildRoute'), {
+                method: 'POST',
+                headers: buildHttpHead(),
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode == 1) {
+                        showError(data.errorMessage);
+                    } else {
+                        location.href = dashboard;
+                    }
+                })
+                .catch(error => {
+                    // Handle any errors
+                    console.error(error);
+                });
+        }
+    </script>
+
+
+    <button id="chooseCompany" onclick="createRoute()">Make Your Choice</button>
+</body>
+
+</html>

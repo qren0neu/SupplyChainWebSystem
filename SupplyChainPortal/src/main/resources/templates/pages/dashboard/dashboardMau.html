@@ -32,7 +32,6 @@
         <!-- Add a navigation menu -->
         <ul id="toolbar-items">
             <li><a onclick="location.href=dashboard">Home</a></li>
-            <li><a onclick="location.href=registerPage">Register</a></li>
             <li><a onclick="location.href=logoutPage">Logout</a></li>
             <li><a onclick="location.href=getPage('/dashboard/viewSelf')">View Self</a></li>
         </ul>
@@ -70,6 +69,13 @@
 
         } else if (myPosition == roleMap.manufacturer.routePlanner) {
 
+            var item1 = document.createElement("li");
+            var target = '/portal/pages/dashboard/viewRoutes';
+            item1.innerHTML = "<a>Browse Route</a>";
+            item1.onclick = function jump() {
+                location.href = target;
+            };
+            toolbarItems.appendChild(item1);
         } else {
             window.location = '/portal/error'
         }
