@@ -2,6 +2,11 @@
 
 A web system that handles the management problem of the supply chain.
 
+Architecture:
+
+![image](https://github.com/user-attachments/assets/96afcebf-52d2-41ef-957d-cfd892d8bb0b)
+
+
 Log in as a supplier, manufacturer, distributor, or end customer.
 
 The system will help you to determine the best time/price options.
