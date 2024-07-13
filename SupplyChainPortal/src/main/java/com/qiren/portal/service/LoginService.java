@@ -52,6 +52,7 @@ public class LoginService {
 	 * Get login user info
 	 */
 	public UserBean getLoginUser(String userId) {
+		UserLoginEntity entity = repo
 		Object o = redisTemplate.opsForHash().get(Constants.SESSION_KEY, userId);
 		if (o == null) {
 			return null;
@@ -78,7 +79,11 @@ public class LoginService {
 		return (UserBean) o;
 	}
 
-	public void clearLoginUser(String userId) {
+	/**
+	 * This is only going to clear the stored login user info. Not cleaning the
+	 * session
+	 */
+	public void clearLoginUserCache(String userId) {
 		redisTemplate.opsForHash().delete(Constants.SESSION_KEY, userId);
 	}
 
@@ -146,14 +151,17 @@ public class LoginService {
 
 		CommonUserResponse response = null;
 		if (Role.valueOf(role.toUpperCase()) == Role.CUSTOMER) {
+			// if is selected as customer here
 			response = customerLogin(username, password, userEntity.getFname());
 		} else if (Role.valueOf(role.toUpperCase()) == Role.COMMON) {
+			// if is common role here, means that the role is still not determined
 			response = new CommonUserResponse();
 			response.setRole(role);
 			response.setUsername(username);
 			// don't create session
 			return CommonUtils.success(response);
 		} else {
+			// go to normal login process of other roles
 			response = otherLogin(username, password, role);
 		}
 
@@ -222,12 +230,12 @@ public class LoginService {
 
 	/**
 	 * Login for "customer"
+	 * 
+	 * We are checking the "login" table to login, not "user" table.
 	 */
 	public CommonUserResponse customerLogin(String username, String password, String fname) {
 		// note: customer only!
 		// customer login
-		// we should probably also use usertable not logintable here, but I'm
-		// considering
 		UserLoginEntity loginEntity = loginRepository.findByUsernameAndPassword(username, password);
 		if (null != loginEntity) {
 			CommonUserResponse userResponse = new CommonUserResponse();
@@ -235,18 +243,6 @@ public class LoginService {
 			userResponse.setUsername(username);
 			userResponse.setRole(Role.CUSTOMER.toString().toLowerCase());
 			userResponse.setType(InternalRole.Customer.CUSTOMER);
-
-			// store
-			// UserBean userBean = new UserBean();
-			// userBean.setFname(fname);
-			// userBean.setRole("customer");
-			// userBean.setType(userResponse.getType());
-			// // userBean.setUserid(userResponse.getUserid());
-			// userBean.setUsername(username);
-
-			// redisTemplate.opsForHash().put(Constants.SESSION_KEY,
-			// CommonUtils.md5(userBean.getUsername()), userBean);
-
 			return userResponse;
 		} else {
 			return null;
@@ -421,7 +417,7 @@ public class LoginService {
 		if (null == userBean) {
 			return CommonUtils.fail("Not logged in");
 		}
-		
+
 		CommonUserEntity user = userBean.getCommonInfo();
 		String oriPasswordString = user.getPassword();
 		user.setUsername(loginRequest.getUsername());
@@ -472,7 +468,7 @@ public class LoginService {
 			userLoginEntity.setCredential(loginRequest.getPassword());
 			loginRepository.save(userLoginEntity);
 
-			clearLoginUser(CommonUtils.md5(userBean.getUsername()));
+			clearLoginUserCache(CommonUtils.md5(userBean.getUsername()));
 			servletRequest.getSession().setAttribute(Constants.SESSION_KEY, "");
 			servletRequest.getSession().invalidate();
 			return CommonUtils.success();
@@ -489,7 +485,7 @@ public class LoginService {
 			return CommonUtils.fail("Sub System Failed");
 		}
 
-		clearLoginUser(CommonUtils.md5(userBean.getUsername()));
+		clearLoginUserCache(CommonUtils.md5(userBean.getUsername()));
 		servletRequest.getSession().setAttribute(Constants.SESSION_KEY, "");
 		servletRequest.getSession().invalidate();
 

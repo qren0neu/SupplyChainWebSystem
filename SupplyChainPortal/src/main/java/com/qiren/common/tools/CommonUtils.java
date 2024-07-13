@@ -1,6 +1,8 @@
 package com.qiren.common.tools;
 
+import com.qiren.common.response.SubResponse;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +14,9 @@ import com.qiren.common.response.CommonResponse;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommonUtils {
 
@@ -117,6 +122,15 @@ public class CommonUtils {
 		return fail(error);
 	}
 
+//	public static final CommonResponse bindingErrorJson(BindingResult bindingResult) {
+//		Map<String, String> errorMap = new HashMap<>();
+//		for (FieldError fieldError : bindingResult.getFieldErrors()) {
+//			System.out.println(fieldError.getField() + "::" + fieldError.getDefaultMessage());
+//			errorMap.put(fieldError.getField(), fieldError.getDefaultMessage());
+//		}
+//		return fail(error);
+//	}
+
 	public static Object simpleSql(String sql, EntityManager entityManager, Object... args) {
 
 		Query query = entityManager.createNativeQuery(sql);
@@ -165,5 +179,14 @@ public class CommonUtils {
 		}
 
 		return query.executeUpdate();
+	}
+
+	public static ResponseEntity<CommonResponse> testResp() {
+		CommonResponse resp = success();
+		return ResponseEntity.ok(resp);
+	}
+
+	public static ResponseEntity<CommonResponse> testResp2() {
+		return ResponseEntity.ok(new SubResponse());
 	}
 }

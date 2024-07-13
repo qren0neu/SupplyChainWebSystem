@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.qiren.common.response.CommonResponse;
 import com.qiren.manufacture.service.OrderService;
 
+@Deprecated
 @RestController
 @RequestMapping("/api")
 public class OrderController {

@@ -87,7 +87,7 @@ public class LoginController {
 		UserBean userBean = loginService.getLoginUser(request);
 		
 		if (null != userBean) {
-			loginService.clearLoginUser(CommonUtils.md5(userBean.getUsername()));
+			loginService.clearLoginUserCache(CommonUtils.md5(userBean.getUsername()));
 			request.getSession().setAttribute(Constants.SESSION_KEY, "");
 			request.getSession().invalidate();
 			return new RedirectView("/portal/perspective/" + userBean.getRole());

@@ -22,6 +22,7 @@ import com.qiren.supplier.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+@Deprecated
 @RestController
 @RequestMapping("/api")
 public class SupplyController {

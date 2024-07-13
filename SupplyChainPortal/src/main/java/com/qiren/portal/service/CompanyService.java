@@ -299,11 +299,18 @@ public class CompanyService {
 		return companyEntity;
 	}
 
+	/**
+	 * We have to check this because we have to make sure some one has the right to
+	 * see others
+	 */
 	public boolean isInSameCompany(String user1, String user2) {
 
 		return companyUserRepository.countByUsers(user1, user2) != 0;
 	}
 
+	/**
+	 * Get all staffs in a company
+	 */
 	public List<Object[]> getAllStaff(HttpServletRequest request, String companyId) {
 
 		UserBean userBean = loginService.getLoginUser(request);
@@ -435,12 +442,10 @@ public class CompanyService {
 		user.setPhone(request.getPhone());
 		user.setPref(request.getPreference());
 
-
 		if (!isInSameCompany(userBean.getCommonInfo().getPkUser() + "", user.getPkUser() + "")) {
 			return CommonUtils.fail("No permission");
 		}
 
-		
 		try {
 			userRepository.save(user);
 		} catch (Exception e) {

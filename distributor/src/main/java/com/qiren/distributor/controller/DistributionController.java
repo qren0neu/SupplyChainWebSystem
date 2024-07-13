@@ -13,6 +13,7 @@ import com.qiren.distributor.request.OrderInRequset;
 import com.qiren.distributor.service.OrderService;
 import com.qiren.distributor.service.ProductService;
 
+@Deprecated
 @RestController
 @RequestMapping("/api")
 public class DistributionController {
